@@ -243,7 +243,7 @@ jobs:
       - prebuild-node
       - prebuild-electron-node14
       - prebuild-electron-node16
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v3
