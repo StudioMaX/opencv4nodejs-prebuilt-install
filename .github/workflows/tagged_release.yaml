@@ -128,7 +128,7 @@ jobs:
         run: npm run create_opencvnode_prebuild
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "prebuilds/*.tar.gz"
+          artifacts: "prebuilds/**/*.tar.gz"
           allowUpdates: true
 
   prebuild-electron-node14:
@@ -182,7 +182,7 @@ jobs:
         run: npm run create_opencvnode_prebuild -- -t ${{matrix.electron}} -r ${{matrix.runtime}}
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "prebuilds/*.tar.gz"
+          artifacts: "prebuilds/**/*.tar.gz"
           allowUpdates: true
 
   prebuild-electron-node16:
@@ -235,7 +235,7 @@ jobs:
         run: npm run create_opencvnode_prebuild -- -t ${{matrix.electron}} -r ${{matrix.runtime}}
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "prebuilds/*.tar.gz"
+          artifacts: "prebuilds/**/*.tar.gz"
           allowUpdates: true
 
   deploy:
