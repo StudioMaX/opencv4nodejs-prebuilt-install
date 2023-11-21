@@ -9,7 +9,7 @@ const file = `opencv_${process.platform}_${packageJson.opencv4nodejs.autoBuildOp
 console.log(file);
 
 async function downloadLib() {
-  let libUrl = `https://github.com/udarrr/opencv4nodejs-prebuilt-install/releases/download/v${packageJson.version}/${file}`;
+  let libUrl = `https://github.com/StudioMaX/opencv4nodejs-prebuilt-install/releases/download/v${packageJson.version}/${file}`;
 
   try {
     if (process.platform === "darwin" && process.arch !== "arm64") {
