@@ -92,7 +92,7 @@ jobs:
             version: latest
           - name: Windows
             version: 2019
-        node: ["14", "16", "18", "19.0.0", "20.0.0", "21.0.0", "22.0.0"]
+        node: ["16", "18", "19.0.0", "20.0.0", "21.0.0", "22.0.0"]
         arch: [x64]
     steps:
       - name: Set up Git repository
@@ -102,8 +102,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.arch }}
-      - name: "Install npm@^8 to get a more up to date bundled node-gyp"
-        run: npm install --global npm@8.3.1
       - name: "Install Linux dependencies"
         if: ${{ matrix.os.name == 'Ubuntu' }}
         run: |
