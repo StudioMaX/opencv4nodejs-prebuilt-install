@@ -22,9 +22,9 @@ jobs:
         arch: [x64]
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.arch }}
@@ -51,7 +51,7 @@ jobs:
         with:
           xcode-version: latest
       - name: "Install python"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: Dependency install
@@ -96,9 +96,9 @@ jobs:
         arch: [x64]
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.arch }}
@@ -111,7 +111,7 @@ jobs:
           sudo apt-get install cmake
           sudo apt-get install -y build-essential
       - name: "Install python"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: "Install Mac dependencies"
@@ -151,9 +151,9 @@ jobs:
 #          ["8.0.0", "9.0.0", "10.0.0", "11.0.0", "12.0.0", "13.0.0", "14.0.0"]
 #    steps:
 #      - name: Set up Git repository
-#        uses: actions/checkout@v3
+#        uses: actions/checkout@v4
 #      - name: Set up node
-#        uses: actions/setup-node@v3
+#        uses: actions/setup-node@v4
 #        with:
 #          node-version: ${{ matrix.node }}
 #          architecture: ${{ matrix.arch }}
@@ -165,7 +165,7 @@ jobs:
 #          sudo apt-get update
 #          sudo apt-get install libudev-dev
 #      - name: "Install python"
-#        uses: actions/setup-python@v4
+#        uses: actions/setup-python@v5
 #        with:
 #          python-version: "3.9"
 #      - name: "Install Mac dependencies"
@@ -204,9 +204,9 @@ jobs:
         electron: [ "15.0.0", "16.0.0", "17.0.0", "18.0.0", "19.0.0", "22.0.0", "23.0.0", "24.0.0", "25.0.0" ]
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.arch }}
@@ -218,7 +218,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install libudev-dev
       - name: "Install python"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: "Install Mac dependencies"
@@ -244,9 +244,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 14
           registry-url: 'https://registry.npmjs.org'
