@@ -205,6 +205,7 @@ export class Mat {
   inRangeAsync(lower: Vec3, upper: Vec3): Promise<Mat>;
   integral(sdepth?: number, sqdepth?: number): { sum: Mat, sqsum: Mat, tilted: Mat };
   integralAsync(sdepth?: number, sqdepth?: number): Promise<{ sum: Mat, sqsum: Mat, tilted: Mat }>;
+  inv(): Mat;
   laplacian(ddepth: number, ksize?: number, scale?: number, delta?: number, borderType?: number): Mat;
   laplacianAsync(ddepth: number, ksize?: number, scale?: number, delta?: number, borderType?: number): Promise<Mat>;
   matMul(B: Mat): Mat;
@@ -243,7 +244,7 @@ export class Mat {
   push_backAsync(mat: Mat): Promise<Mat>;
   pushBack(mat: Mat): Mat;
   pushBackAsync(mat: Mat): Promise<Mat>;
-  putText(text: string, origin: Point2, fontFace: number, fontScale: number, color?: Vec3, lineType?: number, thickness?: number, bottomLeftOrigin?: boolean): void;
+  putText(text: string, origin: Point2, fontFace: number, fontScale: number, color?: Vec3, thickness?: number, lineType?: number, bottomLeftOrigin?: boolean): void;
   pyrDown(size?: Size, borderType?: number): Mat;
   pyrDownAsync(size?: Size, borderType?: number): Promise<Mat>;
   pyrUp(size?: Size, borderType?: number): Mat;
