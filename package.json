@@ -1,6 +1,6 @@
 {
   "name": "@stdmx/opencv4nodejs-prebuilt-install",
-  "version": "4.1.218",
+  "version": "4.1.219",
   "description": "Asynchronous OpenCV 4.x nodejs bindings with JavaScript and TypeScript API.",
   "keywords": [
     "opencv",
@@ -48,7 +48,6 @@
     "create_opencvnode_prebuild": "npm run build_src_opencvlib && node install/download.js && rimraf osOpencvWorlds/linux/opencv/build/lib/cmake && prebuild --include-regex \"\\.(node|a|so|dylib|lib|dll).*$\""
   },
   "opencv4nodejs": {
-    "autoBuildWithoutContrib": 1,
     "autoBuildOpencvVersion": "4.1.2",
     "autoBuildFlags": "-DBUILD_opencv_world=1 -DBUILD_LIST=core,highgui,videoio -DOPENCV_FORCE_3RDPARTY_BUILD=ON -DBUILD_PNG=ON -DBUILD_TIFF=ON -DBUILD_JASPER=ON -DBUILD_JPEG=ON -DBUILD_ZLIB=ON -DBUILD_OPENEXR=ON -DWITH_FFMPEG=OFF -DWITH_GSTREAMER=ON -DBUILD_USE_SYMLINKS=OFF -DWITH_VTK=OFF",
     "disableAutoBuild": 1
