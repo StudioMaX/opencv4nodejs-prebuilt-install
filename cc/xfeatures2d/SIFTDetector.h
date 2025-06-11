@@ -62,7 +62,6 @@ public:
 					edgeThreshold->ref(),
 					sigma->ref()
 				);
-				#endif
 			};
 
 			modifySelf = [=](SIFTDetector* self) {
