@@ -12,7 +12,7 @@ Cross-platform!
 #### Supports
 
 - Windows, Linux , MacOS
-- node 16,17,18,19,20,21,22
+- node 16,17,18,19,20,21,22,24
 - electron 8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,25
 - currently arh x64 (possible M1, arm64 and others if were available hosts with the type of processes)
 
