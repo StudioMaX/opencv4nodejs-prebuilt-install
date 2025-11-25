@@ -17,7 +17,7 @@ jobs:
           - name: macOS
             version: 14
           - name: Windows
-            version: 2019
+            version: 2022
         node: ["16"]
         arch: [x64]
     steps:
@@ -91,7 +91,7 @@ jobs:
           - name: macOS
             version: 14
           - name: Windows
-            version: 2019
+            version: 2022
         node: ["16", "18", "19", "20", "21", "22", "24"]
         arch: [x64]
     steps:
@@ -143,7 +143,7 @@ jobs:
 #          - name: macOS
 #            version: latest
 #          - name: Windows
-#            version: 2019
+#            version: 2022
 #        node: ["14"]
 #        arch: [x64]
 #        runtime: [electron]
@@ -197,7 +197,7 @@ jobs:
           - name: macOS
             version: 14
           - name: Windows
-            version: 2019
+            version: 2022
         node: ["16"]
         arch: [x64]
         runtime: [ electron ]
