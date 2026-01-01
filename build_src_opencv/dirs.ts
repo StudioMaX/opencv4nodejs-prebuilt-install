@@ -13,6 +13,7 @@ const opencv4Include = path.join(opencvInclude, 'opencv4')
 const opencvLibDir = isWin() ? path.join(opencvBuild, 'lib/Release') : path.join(opencvBuild, 'lib')
 const opencvBinDir = isWin() ? path.join(opencvBuild, 'bin/Release') : path.join(opencvBuild, 'bin')
 const autoBuildFile = path.join(opencvRoot, 'auto-build.json')
+const patchesDir = path.join(rootDir, 'patches')
 
 export const dirs = {
   rootDir,
@@ -25,5 +26,6 @@ export const dirs = {
   opencv4Include,
   opencvLibDir,
   opencvBinDir,
-  autoBuildFile
+  autoBuildFile,
+  patchesDir,
 }

@@ -1,0 +1,46 @@
+From 364702b1c98943e4e306e745389d3f464010f069 Mon Sep 17 00:00:00 2001
+From: Alexander Alekhin <alexander.a.alekhin@gmail.com>
+Date: Tue, 27 Oct 2020 19:00:25 +0000
+Subject: [PATCH] cmake(3rdparty): use EXCLUDE_FROM_ALL
+
+---
+ 3rdparty/protobuf/CMakeLists.txt      | 4 ++--
+ cmake/OpenCVUtils.cmake               | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/3rdparty/protobuf/CMakeLists.txt b/3rdparty/protobuf/CMakeLists.txt
+index fc9497f92849..c71bf9faff96 100644
+--- a/3rdparty/protobuf/CMakeLists.txt
++++ b/3rdparty/protobuf/CMakeLists.txt
+@@ -141,7 +141,7 @@ append_if_exist(Protobuf_SRCS
+ )
+ 
+ include_directories(BEFORE "${PROTOBUF_ROOT}/src")  # ensure using if own headers: https://github.com/opencv/opencv/issues/13328
+-add_library(libprotobuf STATIC ${Protobuf_SRCS})
++add_library(libprotobuf STATIC ${OPENCV_3RDPARTY_EXCLUDE_FROM_ALL} ${Protobuf_SRCS})
+ target_include_directories(libprotobuf SYSTEM PUBLIC $<BUILD_INTERFACE:${PROTOBUF_ROOT}/src>)
+ set_target_properties(libprotobuf
+     PROPERTIES
+@@ -157,7 +157,7 @@ get_protobuf_version(Protobuf_VERSION "${PROTOBUF_ROOT}/src")
+ set(Protobuf_VERSION ${Protobuf_VERSION} CACHE INTERNAL "" FORCE)
+ 
+ if(NOT BUILD_SHARED_LIBS)
+-  ocv_install_target(libprotobuf EXPORT OpenCVModules ARCHIVE DESTINATION ${OPENCV_3P_LIB_INSTALL_PATH} COMPONENT dev)
++  ocv_install_target(libprotobuf EXPORT OpenCVModules ARCHIVE DESTINATION ${OPENCV_3P_LIB_INSTALL_PATH} COMPONENT dev OPTIONAL)
+ endif()
+ 
+ ocv_install_3rdparty_licenses(protobuf LICENSE README.md)
+diff --git a/cmake/OpenCVUtils.cmake b/cmake/OpenCVUtils.cmake
+index 610f0e6437a8..693a840ffed0 100644
+--- a/cmake/OpenCVUtils.cmake
++++ b/cmake/OpenCVUtils.cmake
+@@ -1890,3 +1890,9 @@ function(ocv_update_file filepath content)
+     file(WRITE "${filepath}" "${content}")
+   endif()
+ endfunction()
++
++if(NOT BUILD_SHARED_LIBS AND (CMAKE_VERSION VERSION_LESS "3.14.0"))
++  ocv_update(OPENCV_3RDPARTY_EXCLUDE_FROM_ALL "")  # avoid CMake warnings: https://gitlab.kitware.com/cmake/cmake/-/issues/18938
++else()
++  ocv_update(OPENCV_3RDPARTY_EXCLUDE_FROM_ALL "EXCLUDE_FROM_ALL")
++endif()

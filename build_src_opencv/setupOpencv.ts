@@ -8,6 +8,7 @@ import { autoBuildFlags, buildWithCuda, isWithoutContrib, numberOfCoresAvailable
 import { findMsBuild } from "./findMsBuild";
 import { AutoBuildFile } from "./types";
 import { exec, isCudaAvailable, isWin, spawn } from "./utils";
+import { applyOpencvPatches } from "./patches";
 
 const log = require("npmlog");
 
@@ -134,6 +135,8 @@ export async function setupOpencv() {
     await spawn("git", ["clone", "-b", `${tag}`, "--single-branch", "--depth", "1", "--progress", opencvContribRepoUrl], { cwd: dirs.opencvRoot });
   }
   await spawn("git", ["clone", "-b", `${tag}`, "--single-branch", "--depth", "1", "--progress", opencvRepoUrl], { cwd: dirs.opencvRoot });
+
+  await applyOpencvPatches();
 
   const cmakeArgs = getCmakeArgs(await cMakeFlags);
   log.info("install", "running cmake %s", cmakeArgs);

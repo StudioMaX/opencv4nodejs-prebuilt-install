@@ -1,0 +1,291 @@
+From 288fa70ed97a84a13ab28fb3b731858791cc5454 Mon Sep 17 00:00:00 2001
+From: Alexander Alekhin <alexander.alekhin@intel.com>
+Date: Sat, 25 Apr 2020 20:33:59 +0000
+Subject: [PATCH] dnn(protobuf): backport AllowUnknownField(),
+ SetRecursionLimit()
+
+- limit recursion in SkipField*() calls
+---
+ .../src/google/protobuf/text_format.cc        | 72 ++++++++++++++-----
+ .../src/google/protobuf/text_format.h         | 17 ++++-
+ modules/dnn/src/caffe/caffe_io.cpp            | 15 ++--
+ 3 files changed, 78 insertions(+), 26 deletions(-)
+
+diff --git a/3rdparty/protobuf/src/google/protobuf/text_format.cc b/3rdparty/protobuf/src/google/protobuf/text_format.cc
+index 78f1acd7feda..eec6dffb6e19 100644
+--- a/3rdparty/protobuf/src/google/protobuf/text_format.cc
++++ b/3rdparty/protobuf/src/google/protobuf/text_format.cc
+@@ -225,7 +225,9 @@ class TextFormat::Parser::ParserImpl {
+              bool allow_unknown_enum,
+              bool allow_field_number,
+              bool allow_relaxed_whitespace,
+-             bool allow_partial)
++             bool allow_partial,
++             int recursion_limit  // backported from 3.8.0
++    )
+     : error_collector_(error_collector),
+       finder_(finder),
+       parse_info_tree_(parse_info_tree),
+@@ -238,7 +240,9 @@ class TextFormat::Parser::ParserImpl {
+       allow_unknown_enum_(allow_unknown_enum),
+       allow_field_number_(allow_field_number),
+       allow_partial_(allow_partial),
+-      had_errors_(false) {
++      had_errors_(false),
++      recursion_limit_(recursion_limit)  // backported from 3.8.0
++    {
+     // For backwards-compatibility with proto1, we need to allow the 'f' suffix
+     // for floats.
+     tokenizer_.set_allow_f_after_float(true);
+@@ -490,9 +494,9 @@ class TextFormat::Parser::ParserImpl {
+       if (TryConsume(":") && !LookingAt("{") && !LookingAt("<")) {
+         UnknownFieldSet* unknown_field = unknown_fields->AddGroup(unknown_fields->field_count());
+         unknown_field->AddLengthDelimited(0, field_name);  // Add a field's name.
+-        return SkipFieldValue(unknown_field);
++        return SkipFieldValue(unknown_field, recursion_limit_);
+       } else {
+-        return SkipFieldMessage(unknown_fields);
++        return SkipFieldMessage(unknown_fields, recursion_limit_);
+       }
+     }
+ 
+@@ -575,7 +579,14 @@ class TextFormat::Parser::ParserImpl {
+   }
+ 
+   // Skips the next field including the field's name and value.
+-  bool SkipField(UnknownFieldSet* unknown_fields) {
++  bool SkipField(UnknownFieldSet* unknown_fields, int recursion_limit) {
++
++    // OpenCV specific
++    if (--recursion_limit < 0) {
++      ReportError("Message is too deep (SkipField)");
++      return false;
++    }
++
+     string field_name;
+     if (TryConsume("[")) {
+       // Extension name.
+@@ -594,9 +605,9 @@ class TextFormat::Parser::ParserImpl {
+     if (TryConsume(":") && !LookingAt("{") && !LookingAt("<")) {
+       UnknownFieldSet* unknown_field = unknown_fields->AddGroup(unknown_fields->field_count());
+       unknown_field->AddLengthDelimited(0, field_name);  // Add a field's name.
+-      DO(SkipFieldValue(unknown_field));
++      DO(SkipFieldValue(unknown_field, recursion_limit));
+     } else {
+-      DO(SkipFieldMessage(unknown_fields));
++      DO(SkipFieldMessage(unknown_fields, recursion_limit));
+     }
+     // For historical reasons, fields may optionally be separated by commas or
+     // semicolons.
+@@ -608,6 +619,12 @@ class TextFormat::Parser::ParserImpl {
+                            const Reflection* reflection,
+                            const FieldDescriptor* field) {
+ 
++    // backported from 3.8.0
++    if (--recursion_limit_ < 0) {
++      ReportError("Message is too deep");
++      return false;
++    }
++
+     // If the parse information tree is not NULL, create a nested one
+     // for the nested message.
+     ParseInfoTree* parent = parse_info_tree_;
+@@ -624,6 +641,9 @@ class TextFormat::Parser::ParserImpl {
+                         delimiter));
+     }
+ 
++    // backported from 3.8.0
++    ++recursion_limit_;
++
+     // Reset the parse information tree.
+     parse_info_tree_ = parent;
+     return true;
+@@ -631,11 +651,17 @@ class TextFormat::Parser::ParserImpl {
+ 
+   // Skips the whole body of a message including the beginning delimiter and
+   // the ending delimiter.
+-  bool SkipFieldMessage(UnknownFieldSet* unknown_fields) {
++  bool SkipFieldMessage(UnknownFieldSet* unknown_fields, int recursion_limit) {
++    // OpenCV specific
++    if (--recursion_limit < 0) {
++      ReportError("Message is too deep (SkipFieldMessage)");
++      return false;
++    }
++
+     string delimiter;
+     DO(ConsumeMessageDelimiter(&delimiter));
+     while (!LookingAt(">") &&  !LookingAt("}")) {
+-      DO(SkipField(unknown_fields));
++      DO(SkipField(unknown_fields, recursion_limit));
+     }
+     DO(Consume(delimiter));
+     return true;
+@@ -775,7 +801,14 @@ class TextFormat::Parser::ParserImpl {
+     return true;
+   }
+ 
+-  bool SkipFieldValue(UnknownFieldSet* unknown_field) {
++  bool SkipFieldValue(UnknownFieldSet* unknown_field, int recursion_limit) {
++
++    // OpenCV specific
++    if (--recursion_limit < 0) {
++      ReportError("Message is too deep (SkipFieldValue)");
++      return false;
++    }
++
+     if (LookingAtType(io::Tokenizer::TYPE_STRING)) {
+       while (LookingAtType(io::Tokenizer::TYPE_STRING)) {
+         tokenizer_.Next();
+@@ -785,9 +818,9 @@ class TextFormat::Parser::ParserImpl {
+     if (TryConsume("[")) {
+       while (true) {
+         if (!LookingAt("{") && !LookingAt("<")) {
+-          DO(SkipFieldValue(unknown_field));
++          DO(SkipFieldValue(unknown_field, recursion_limit));
+         } else {
+-          DO(SkipFieldMessage(unknown_field));
++          DO(SkipFieldMessage(unknown_field, recursion_limit));
+         }
+         if (TryConsume("]")) {
+           break;
+@@ -1156,6 +1189,7 @@ class TextFormat::Parser::ParserImpl {
+   const bool allow_field_number_;
+   const bool allow_partial_;
+   bool had_errors_;
++  int recursion_limit_;  // backported from 3.8.0
+ };
+ 
+ #undef DO
+@@ -1306,17 +1340,19 @@ class TextFormat::Printer::TextGenerator
+ TextFormat::Finder::~Finder() {
+ }
+ 
+-TextFormat::Parser::Parser(bool allow_unknown_field)
++TextFormat::Parser::Parser()
+   : error_collector_(NULL),
+     finder_(NULL),
+     parse_info_tree_(NULL),
+     allow_partial_(false),
+     allow_case_insensitive_field_(false),
+-    allow_unknown_field_(allow_unknown_field),
++    allow_unknown_field_(false),
+     allow_unknown_enum_(false),
+     allow_field_number_(false),
+     allow_relaxed_whitespace_(false),
+-    allow_singular_overwrites_(false) {
++    allow_singular_overwrites_(false),
++    recursion_limit_(std::numeric_limits<int>::max())
++{
+ }
+ 
+ TextFormat::Parser::~Parser() {}
+@@ -1335,7 +1371,7 @@ bool TextFormat::Parser::Parse(io::ZeroCopyInputStream* input,
+                     overwrites_policy,
+                     allow_case_insensitive_field_, allow_unknown_field_,
+                     allow_unknown_enum_, allow_field_number_,
+-                    allow_relaxed_whitespace_, allow_partial_);
++                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
+   return MergeUsingImpl(input, output, &parser);
+ }
+ 
+@@ -1353,7 +1389,7 @@ bool TextFormat::Parser::Merge(io::ZeroCopyInputStream* input,
+                     ParserImpl::ALLOW_SINGULAR_OVERWRITES,
+                     allow_case_insensitive_field_, allow_unknown_field_,
+                     allow_unknown_enum_, allow_field_number_,
+-                    allow_relaxed_whitespace_, allow_partial_);
++                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
+   return MergeUsingImpl(input, output, &parser);
+ }
+ 
+@@ -1388,7 +1424,7 @@ bool TextFormat::Parser::ParseFieldValueFromString(
+                     ParserImpl::ALLOW_SINGULAR_OVERWRITES,
+                     allow_case_insensitive_field_, allow_unknown_field_,
+                     allow_unknown_enum_, allow_field_number_,
+-                    allow_relaxed_whitespace_, allow_partial_);
++                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
+   return parser.ParseField(field, output);
+ }
+ 
+diff --git a/3rdparty/protobuf/src/google/protobuf/text_format.h b/3rdparty/protobuf/src/google/protobuf/text_format.h
+index 74d89a5f3ed8..a20a68d42f74 100644
+--- a/3rdparty/protobuf/src/google/protobuf/text_format.h
++++ b/3rdparty/protobuf/src/google/protobuf/text_format.h
+@@ -457,7 +457,7 @@ class LIBPROTOBUF_EXPORT TextFormat {
+   // For more control over parsing, use this class.
+   class LIBPROTOBUF_EXPORT Parser {
+    public:
+-    Parser(bool allow_unknown_field = false);
++    Parser();
+     ~Parser();
+ 
+     // Like TextFormat::Parse().
+@@ -508,10 +508,24 @@ class LIBPROTOBUF_EXPORT TextFormat {
+                                    Message* output);
+ 
+ 
++    // backported from 3.8.0
++    // When an unknown field is met, parsing will fail if this option is set
++    // to false(the default). If true, unknown fields will be ignored and
++    // a warning message will be generated.
++    // Please aware that set this option true may hide some errors (e.g.
++    // spelling error on field name). Avoid to use this option if possible.
++    void AllowUnknownField(bool allow) { allow_unknown_field_ = allow; }
++
++
+     void AllowFieldNumber(bool allow) {
+       allow_field_number_ = allow;
+     }
+ 
++    // backported from 3.8.0
++    // Sets maximum recursion depth which parser can use. This is effectively
++    // the maximum allowed nesting of proto messages.
++    void SetRecursionLimit(int limit) { recursion_limit_ = limit; }
++
+    private:
+     // Forward declaration of an internal class used to parse text
+     // representations (see text_format.cc for implementation).
+@@ -533,6 +547,7 @@ class LIBPROTOBUF_EXPORT TextFormat {
+     bool allow_field_number_;
+     bool allow_relaxed_whitespace_;
+     bool allow_singular_overwrites_;
++    int recursion_limit_;  // backported from 3.8.0
+   };
+ 
+ 
+diff --git a/modules/dnn/src/caffe/caffe_io.cpp b/modules/dnn/src/caffe/caffe_io.cpp
+index e3f1113242a3..2fc4d84f4604 100644
+--- a/modules/dnn/src/caffe/caffe_io.cpp
++++ b/modules/dnn/src/caffe/caffe_io.cpp
+@@ -1120,11 +1120,12 @@ bool ReadProtoFromTextFile(const char* filename, Message* proto) {
+     std::ifstream fs(filename, std::ifstream::in);
+     CHECK(fs.is_open()) << "Can't open \"" << filename << "\"";
+     IstreamInputStream input(&fs);
++    google::protobuf::TextFormat::Parser parser;
+ #ifndef OPENCV_DNN_EXTERNAL_PROTOBUF
+-    return google::protobuf::TextFormat::Parser(true).Parse(&input, proto);
+-#else
+-    return google::protobuf::TextFormat::Parser().Parse(&input, proto);
++    parser.AllowUnknownField(true);
++    parser.SetRecursionLimit(1000);
+ #endif
++    return parser.Parse(&input, proto);
+ }
+ 
+ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
+@@ -1137,12 +1138,12 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
+ 
+ bool ReadProtoFromTextBuffer(const char* data, size_t len, Message* proto) {
+     ArrayInputStream input(data, len);
++    google::protobuf::TextFormat::Parser parser;
+ #ifndef OPENCV_DNN_EXTERNAL_PROTOBUF
+-    return google::protobuf::TextFormat::Parser(true).Parse(&input, proto);
+-#else
+-    return google::protobuf::TextFormat::Parser().Parse(&input, proto);
++    parser.AllowUnknownField(true);
++    parser.SetRecursionLimit(1000);
+ #endif
+-
++    return parser.Parse(&input, proto);
+ }
+ 
+ 

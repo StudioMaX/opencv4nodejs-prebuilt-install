@@ -8,3 +8,8 @@ export type AutoBuildFile = {
   autoBuildFlags: string
   modules: OpencvModule[]
 }
+
+export interface OpencvPatchRule {
+  introducedIn: string;
+  patches: string[];
+}

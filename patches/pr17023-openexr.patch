@@ -1,0 +1,23 @@
+From b77fe9d624ef36023371be4d93c168aa5c18d766 Mon Sep 17 00:00:00 2001
+From: Conrad Poelman <cpgithub@stellarscience.com>
+Date: Thu, 9 Apr 2020 05:19:23 -0400
+Subject: [PATCH] Remove std::binary_function as it's invalid C++
+
+std::binary_function was deprecated with C++11 and removed in C++17. It provided just two typedefs which in this case were unused.
+---
+ 3rdparty/openexr/IlmImf/ImfAttribute.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/3rdparty/openexr/IlmImf/ImfAttribute.cpp b/3rdparty/openexr/IlmImf/ImfAttribute.cpp
+index 7ac146e01557..02738c2679e7 100644
+--- a/3rdparty/openexr/IlmImf/ImfAttribute.cpp
++++ b/3rdparty/openexr/IlmImf/ImfAttribute.cpp
+@@ -63,7 +63,7 @@ Attribute::~Attribute () {}
+ 
+ namespace {
+ 
+-struct NameCompare: std::binary_function <const char *, const char *, bool>
++struct NameCompare
+ {
+     bool
+     operator () (const char *x, const char *y) const
