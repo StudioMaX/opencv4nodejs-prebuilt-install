@@ -18,7 +18,7 @@ jobs:
             version: 14
           - name: Windows
             version: 2022
-        node: ['16']
+        node: ['18']
         arch: [x64]
     steps:
       - name: Set up Git repository

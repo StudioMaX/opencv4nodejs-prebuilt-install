@@ -2,7 +2,7 @@
 
 ![Tested](https://github.com/udarrr/opencv4nodejs-prebuilt-install/workflows/Tests/badge.svg)
 ![Released](https://github.com/udarrr/opencv4nodejs-prebuilt-install/workflows/Create%20tagged%20release/badge.svg)
-![Supported node versions](https://img.shields.io/badge/node-16%2C%2017%2C%2018%2C%2019%2C%2020%2C%2021%2C%2022-green)
+![Supported node versions](https://img.shields.io/badge/node-18%2C%2020%2C%2021%2C%2022%2C%2023%2C%2024-green)
 ![Supported electron versions](https://img.shields.io/badge/electron-23%2C%2024%2C%2025-green)
 
 ### Simple installation Opencv versions for node with pre-compiled bindings
@@ -12,7 +12,7 @@ Cross-platform!
 #### Supports
 
 - Windows, Linux , MacOS
-- node 16,17,18,19,20,21,22,24
+- node 18,20,21,22,23,24
 - electron 23,24,25
 - currently arh x64 (possible M1, arm64 and others if were available hosts with the type of processes)
 

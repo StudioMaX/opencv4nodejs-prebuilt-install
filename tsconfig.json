@@ -8,9 +8,12 @@
     "strictNullChecks": true,
     "outDir": "build_release_opencv",
     "module": "commonjs",
-    "target": "ES2019",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": ["node"],
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "typeRoots": ["typings", "node_modules/@types"]
   },
   "formatCodeOptions": {

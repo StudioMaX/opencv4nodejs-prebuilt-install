@@ -6,7 +6,7 @@ on:
 
 jobs:
   prebuild-lib:
-    name: "Build on Node v${{ matrix.node }} ${{ matrix.os.name }} ${{ matrix.arch }}"
+    name: "Build lib on Node v${{ matrix.node }} ${{ matrix.os.name }} ${{ matrix.arch }}"
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
 
     strategy:
@@ -18,7 +18,7 @@ jobs:
             version: 14
           - name: Windows
             version: 2022
-        node: ["16"]
+        node: ["18"]
         arch: [x64]
     steps:
       - name: Set up Git repository
@@ -90,7 +90,7 @@ jobs:
             version: 14
           - name: Windows
             version: 2022
-        node: ["16", "18", "19", "20", "21", "22"]
+        node: ["18", "20", "21", "22", "23", "24"]
         arch: [x64]
     steps:
       - name: Set up Git repository

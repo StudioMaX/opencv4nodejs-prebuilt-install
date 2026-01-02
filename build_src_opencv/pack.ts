@@ -1,6 +1,6 @@
 const path = require("path");
 import blob from "@u4/tiny-glob";
-import tar from "tar";
+import * as tar from "tar";
 
 export class Pack {
   static cb(err: any) {
