@@ -15,7 +15,7 @@ jobs:
           - name: Ubuntu
             version: 22.04
           - name: macOS
-            version: latest
+            version: 14
           - name: Windows
             version: 2022
         node: ["16"]
@@ -87,7 +87,7 @@ jobs:
           - name: Ubuntu
             version: 22.04
           - name: macOS
-            version: latest
+            version: 14
           - name: Windows
             version: 2022
         node: ["16", "18", "19", "20", "21", "22"]
@@ -139,7 +139,7 @@ jobs:
           - name: Ubuntu
             version: 22.04
           - name: macOS
-            version: latest
+            version: 14
           - name: Windows
             version: 2022
         node: ["18"]
