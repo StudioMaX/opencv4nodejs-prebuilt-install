@@ -27,6 +27,18 @@ export function opencvVersion() {
   return process.env.OPENCV4NODEJS_AUTOBUILD_OPENCV_VERSION || '3.4.6'
 }
 
+export function opencvSoVersion(): string {
+  const [major, minor, patch] = opencvVersion().split(".").map(Number);
+
+  // OpenCV < 4.5.5
+  if (major < 4 || (major === 4 && (minor < 5 || (minor === 5 && patch < 5)))) {
+    return `${major}.${minor}`;
+  }
+
+  // OpenCV >= 4.5.5
+  return `${major}${minor.toString().padStart(2, "0")}`;
+}
+
 export function numberOfCoresAvailable() {
   return os.cpus().length
 }

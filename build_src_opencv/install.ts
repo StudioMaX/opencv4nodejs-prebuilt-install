@@ -9,6 +9,7 @@ import {
   isAutoBuildDisabled,
   isWithoutContrib,
   opencvVersion,
+  opencvSoVersion,
   readAutoBuildFile,
 } from "./env";
 import { getLibsFactory } from "./getLibsFactory";
@@ -142,6 +143,8 @@ class InstallOpencv {
     packageJson.opencv4nodejs.disableAutoBuild = 1;
 
     try {
+      const version = packageJson.opencv4nodejs.autoBuildOpencvVersion;
+      const soVersion = opencvSoVersion();
       if (process.platform === "darwin" && process.arch !== "arm64") {
         const patterns: Array<string> = [
           path.join("opencv", "build", "include"),
@@ -149,16 +152,13 @@ class InstallOpencv {
             "opencv",
             "build",
             "lib",
-            `libopencv_world.${packageJson.opencv4nodejs.autoBuildOpencvVersion}.dylib`
+            `libopencv_world.${version}.dylib`
           ),
           path.join(
             "opencv",
             "build",
             "lib",
-            `libopencv_world.${packageJson.opencv4nodejs.autoBuildOpencvVersion.slice(
-              0,
-              3
-            )}.dylib`
+            `libopencv_world.${soVersion}.dylib`
           ),
           path.join("opencv", "build", "bin"),
         ];
@@ -173,16 +173,13 @@ class InstallOpencv {
             "opencv",
             "build",
             "lib",
-            `libopencv_world.${packageJson.opencv4nodejs.autoBuildOpencvVersion}.dylib`
+            `libopencv_world.${version}.dylib`
           ),
           path.join(
             "opencv",
             "build",
             "lib",
-            `libopencv_world.${packageJson.opencv4nodejs.autoBuildOpencvVersion.slice(
-              0,
-              3
-            )}.dylib`
+            `libopencv_world.${soVersion}.dylib`
           ),
           path.join("opencv", "build", "bin"),
         ];
@@ -197,16 +194,13 @@ class InstallOpencv {
             "opencv",
             "build",
             "lib",
-            `libopencv_world.so.${packageJson.opencv4nodejs.autoBuildOpencvVersion}`
+            `libopencv_world.so.${version}`
           ),
           path.join(
             "opencv",
             "build",
             "lib",
-            `libopencv_world.so.${packageJson.opencv4nodejs.autoBuildOpencvVersion.slice(
-              0,
-              3
-            )}`
+            `libopencv_world.so.${soVersion}`
           ),
           path.join("opencv", "build", "bin"),
         ];

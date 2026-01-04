@@ -56,6 +56,14 @@ NAN_MODULE_INIT(Core::Init) {
   Nan::SetMethod(target, "eigenAsync", EigenAsync);
   Nan::SetMethod(target, "solve", Solve);
   Nan::SetMethod(target, "solveAsync", SolveAsync);
+
+  Nan::SetMethod(target, "getTickFrequency", GetTickFrequency);
+  Nan::SetMethod(target, "getTickCount", GetTickCount);
+#if CV_VERSION_GREATER_EQUAL(3, 4, 2)
+  Nan::SetMethod(target, "getVersionMajor", GetVersionMajor);
+  Nan::SetMethod(target, "getVersionMinor", GetVersionMinor);
+  Nan::SetMethod(target, "getVersionRevision", GetVersionRevision);
+#endif
   Nan::SetMethod(target, "invert", Invert);
   Nan::SetMethod(target, "invertAsync", InvertAsync);
 };
@@ -373,6 +381,28 @@ NAN_METHOD(Core::Solve) {
 NAN_METHOD(Core::SolveAsync) {
 	FF::asyncBinding<CoreBindings::Solve>("Core", "Solve", info);
 }
+
+NAN_METHOD(Core::GetTickFrequency) {
+  info.GetReturnValue().Set(FF::IntConverter::wrap(cv::getTickFrequency()));
+}
+
+NAN_METHOD(Core::GetTickCount) {
+  info.GetReturnValue().Set(FF::IntConverter::wrap(cv::getTickCount()));
+}
+
+#if CV_VERSION_GREATER_EQUAL(3, 4, 2)
+NAN_METHOD(Core::GetVersionMajor) {
+  info.GetReturnValue().Set(FF::IntConverter::wrap(cv::getVersionMajor()));
+}
+
+NAN_METHOD(Core::GetVersionMinor) {
+  info.GetReturnValue().Set(FF::IntConverter::wrap(cv::getVersionMinor()));
+}
+
+NAN_METHOD(Core::GetVersionRevision) {
+  info.GetReturnValue().Set(FF::IntConverter::wrap(cv::getVersionRevision()));
+}
+#endif
 
 NAN_METHOD(Core::Invert) {
 	FF::syncBinding<CoreBindings::Invert>("Core", "Invert", info);

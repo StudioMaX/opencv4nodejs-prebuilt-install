@@ -2,7 +2,7 @@ name: Tests
 on:
   push:
     tags:
-      - test4.1.*
+      - test4.5.*
 
 jobs:
   prebuild-node:

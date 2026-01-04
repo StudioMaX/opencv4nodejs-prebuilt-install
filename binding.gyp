@@ -113,10 +113,12 @@
                     "cc/features2d/detectors/SimpleBlobDetectorParams.cc",
                     "cc/xfeatures2d/xfeatures2d.cc",
                     "cc/xfeatures2d/SIFTDetector.cc",
-                    "cc/xfeatures2d/SURFDetector.cc"
+                    "cc/xfeatures2d/SURFDetector.cc",
+                    "cc/highgui/highgui.cc",
+                    "cc/highgui/highguiConstants.cc",
                 ],
                 "cflags": [
-                    "-std=c++11"
+                    "-std=c++14"
                 ],
                 "cflags!": [
                     "-fno-exceptions"
