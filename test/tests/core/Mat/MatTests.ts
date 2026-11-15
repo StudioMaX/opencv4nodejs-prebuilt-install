@@ -261,6 +261,26 @@ export default function (args: TestContext) {
     });
   });
 
+  describe('setData', () => {
+    const matC1 = new cv.Mat([
+      [0, 0, 0],
+      [0, 0, 0],
+    ], cv.CV_8U);
+
+    const srcData = Buffer.from([1,2,3,4,5,6]);
+
+    describe('sync', () => {
+      it('should copy the buffer into Mat', () => {
+        matC1.setData(srcData);
+        assertDataDeepEquals([
+          [1, 2, 3],
+          [4, 5, 6],
+        ], matC1.getDataAsArray());
+      });
+    });
+
+  });
+
   describe('discrete transform', () => {
     const dtMat = new cv.Mat([
       [0.9, 0.9, 0, 0],

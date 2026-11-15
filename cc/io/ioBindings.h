@@ -79,12 +79,10 @@ namespace IoBindings {
       return FF::IntArrayConverter::optArg(2, &flags, info);
     }
 
-    static void freeBufferCallback(char* data, void* hint) {
-      free(data);
-    }
-
     v8::Local<v8::Value> getReturnValue() {
-      return Nan::NewBuffer(data, dataSize, freeBufferCallback, 0).ToLocalChecked();
+      v8::Local<v8::Value> dataCopy = Nan::CopyBuffer(data, dataSize).ToLocalChecked();
+      free(data);
+      return dataCopy;
     }
   };
 

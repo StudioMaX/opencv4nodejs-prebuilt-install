@@ -141,6 +141,7 @@ NAN_MODULE_INIT(Mat::Init) {
   Nan::SetPrototypeMethod(ctor, "getData", GetData);
   Nan::SetPrototypeMethod(ctor, "getDataAsync", GetDataAsync);
   Nan::SetPrototypeMethod(ctor, "getDataAsArray", GetDataAsArray);
+  Nan::SetPrototypeMethod(ctor, "setData", SetData);
   Nan::SetPrototypeMethod(ctor, "getRegion", GetRegion);
   Nan::SetPrototypeMethod(ctor, "row", Row);
   Nan::SetPrototypeMethod(ctor, "copy", Copy);
@@ -822,6 +823,15 @@ NAN_METHOD(Mat::GetDataAsArray) {
   default: return tryCatch.throwError("not implemented yet - mat dims:" + std::to_string(mat.dims));
   }
   info.GetReturnValue().Set(rowArray);
+}
+
+NAN_METHOD(Mat::SetData) {
+	FF::TryCatch tryCatch("Mat::SetData");
+  cv::Mat mat = Mat::unwrapSelf(info);
+  char *data = static_cast<char *>(node::Buffer::Data(info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked()));
+  size_t size = mat.rows * mat.cols * mat.elemSize();
+  memcpy(mat.data, data, size);
+  info.GetReturnValue().Set(Mat::Converter::wrap(mat));
 }
 
 NAN_METHOD(Mat::GetRegion) {

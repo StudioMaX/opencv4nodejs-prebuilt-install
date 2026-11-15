@@ -419,6 +419,13 @@ export class Mat {
   getData(): Buffer;
   getDataAsync(): Promise<Buffer>;
   /**
+   * Copy a Buffer into an existing Mat object.
+   * The actual size written is defined by the target Mat size (mat.rows * mat.cols * mat.elemSize())
+   * @param buffer
+   */
+  setData(buffer: Buffer): Mat;
+
+  /**
    * if Mat.dims <= 2
    * 
    * @see https://github.com/justadudewhohacks/opencv4nodejs/issues/329

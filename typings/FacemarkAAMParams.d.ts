@@ -1,4 +1,5 @@
 import { Facemark } from "./Facemark";
+import { Point2 } from "./Point2";
 
 export class FacemarkAAM extends Facemark { }
 

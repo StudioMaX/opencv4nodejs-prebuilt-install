@@ -61,6 +61,7 @@ public:
   static NAN_METHOD(SetTo);
   static NAN_METHOD(SetToAsync);
   static NAN_METHOD(GetDataAsArray);
+  static NAN_METHOD(SetData);
   static NAN_METHOD(GetRegion);
   static NAN_METHOD(Norm);
   static NAN_METHOD(Row);
