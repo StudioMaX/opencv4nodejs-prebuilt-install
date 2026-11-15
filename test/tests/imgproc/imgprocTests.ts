@@ -32,7 +32,7 @@ export default function (ctxt: TestContext) {
         20, 0.04, 1,
       ]),
       getOptionalArgsMap: () => ([
-        ['mask', new cv.Mat(512, 512, cv.CV_8U)],
+        ['mask', new cv.Mat(512, 512, cv.CV_8U, 255)],
         ['blockSize', 3],
         ['gradientSize', 3],
         ['useHarrisDetector', false],

@@ -34,7 +34,7 @@ const xmodules = [
 describe('cv', () => {
   const toTest: {[key: string]: boolean} = {
     core: true,
-    imgproc: false, // to fix
+    imgproc: true,
     calib3d: true,
     features2d: true,
     io: true,
@@ -54,7 +54,9 @@ describe('cv', () => {
   // Object.keys(toTest).forEach((m) => { toTest[m] = false; });
   // toTest.img_hash = true;
 
-  let builtModules = modules.concat(xmodules);
+  // The prebuilt OpenCV distribution uses BUILD_LIST and does not include every
+  // upstream module. CI can assert its full expected set via TEST_MODULE_LIST.
+  let builtModules = ['core', 'imgproc', 'io'];
   if (process.env.APPVEYOR_BUILD) {
     // OpenCV installed via choco does not include contrib modules
     builtModules = modules;
@@ -100,7 +102,7 @@ describe('cv', () => {
 
   it('all modules should be built', () => {
     // xfeatures2d is a non free module not available on debian disto
-    builtModules.filter((m) => m !== 'xfeatures2d').forEach((m) => expect(cv.modules).to.have.property(m));
+    builtModules.filter((m) => m !== 'xfeatures2d').forEach((m) => expect(cv.modules).to.have.property(m, true));
   });
   if (toTest.core && cv.modules.core) {
     describe('core', () => coreTestSuite(ctxt));
