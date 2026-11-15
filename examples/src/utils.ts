@@ -40,7 +40,7 @@ export function getCachedFile(localName: string, url: string, opts?: { notice?: 
         complete: '=',
         incomplete: ' ',
         renderThrottle: 1,
-        total: parseInt(totalLength),
+        total: parseInt(String(totalLength), 10),
       });
       data.on('data', (chunk: Buffer) => progressBar.tick(chunk.length));
     }
@@ -205,4 +205,3 @@ export const drawGreenRect = (image: Mat, rect: Rect, opts = { thickness: 2 }) =
   drawRect(image, rect, new cv.Vec3(0, 255, 0), opts);
 export const drawRedRect = (image: Mat, rect: Rect, opts = { thickness: 2 }) =>
   drawRect(image, rect, new cv.Vec3(0, 0, 255), opts);
-
