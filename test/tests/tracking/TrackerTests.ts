@@ -1,7 +1,10 @@
 import { expect } from 'chai';
+import { Mat, TrackerBoosting, TrackerCSRT, TrackerKCF, TrackerMedianFlow, TrackerMIL, TrackerMOSSE, TrackerTLD } from '../../../typings';
 import { TestContext } from '../model';
 
-const expectImplementsMethods = (tracker) => {
+type TrackerNames = 'TrackerBoosting' | 'TrackerMIL' | 'TrackerKCF' | 'TrackerCSRT' | 'TrackerMedianFlow' | 'TrackerTLD' | 'TrackerMOSSE';
+
+const expectImplementsMethods = (tracker: TrackerBoosting | TrackerMedianFlow | TrackerMIL | TrackerTLD | TrackerKCF | TrackerCSRT | TrackerMOSSE) => {
   expect(tracker).to.have.property('clear').to.be.a('function');
   expect(tracker).to.have.property('init').to.be.a('function');
   expect(tracker).to.have.property('update').to.be.a('function');
@@ -9,16 +12,22 @@ const expectImplementsMethods = (tracker) => {
 };
 
 export default function (args: TestContext) {
-  const { cv, utils, getTestImg } = args;
-
   const {
+    cv,
     cvVersionGreaterEqual,
     cvVersionEqual,
-  } = utils;
+    getTestImg,
+  } = args;
 
-  const TrackerTestGenerator = (getTestImg) => (trackerName) => {
-    const newTracker = (arg?: any) => new cv[trackerName]();
-    const newTrackerParams = () => new cv[`${trackerName}Params`]();
+  const TrackerTestGenerator = (getTestImg2: () => Mat) => (trackerName: TrackerNames) => {
+    // eslint-disable-next-line no-unused-vars
+    const newTracker = (_arg2?: unknown) => new cv[trackerName]();
+    const newTrackerParams = () => {
+      if (trackerName === 'TrackerBoosting' || trackerName === 'TrackerKCF' || trackerName === 'TrackerMIL') {
+        return new cv[`${trackerName}Params`]();
+      }
+      throw Error(`non supported ${trackerName}params`);
+    };
 
     describe(trackerName, () => {
       describe('constructor', () => {
@@ -40,17 +49,19 @@ export default function (args: TestContext) {
 
       describe('init', () => {
         it('should throw if no args', () => {
+          // @ts-expect-error missing args
           expect(() => newTracker().init()).to.throw('Tracker::Init - Error: expected argument 0 to be of type');
         });
 
         it('can be called with frame and initial box', () => {
-          const ret = newTracker().init(getTestImg(), new cv.Rect(0, 0, 10, 10));
+          const ret = newTracker().init(getTestImg2(), new cv.Rect(0, 0, 10, 10));
           expect(ret).to.true;
         });
       });
 
       describe('update', () => {
         it('should throw if no args', () => {
+          // @ts-expect-error missing args
           expect(() => newTracker().update()).to.throw('Tracker::Update - Error: expected argument 0 to be of type');
         });
 
@@ -61,8 +72,8 @@ export default function (args: TestContext) {
         )) {
           it('returns bounding box', () => {
             const tracker = newTracker();
-            tracker.init(getTestImg(), new cv.Rect(0, 0, 10, 10));
-            const rect = tracker.update(getTestImg());
+            tracker.init(getTestImg2(), new cv.Rect(0, 0, 10, 10));
+            const rect = tracker.update(getTestImg2());
             if (rect !== null) {
               expect(rect).to.be.instanceOf(cv.Rect);
             }
@@ -71,14 +82,14 @@ export default function (args: TestContext) {
       });
 
       describe('getModel', () => {
-
+        // missing
       });
     });
   };
 
   const generateTrackerTests = TrackerTestGenerator(getTestImg);
 
-  const trackerNames = [
+  const trackerNames: TrackerNames[] = [
     'TrackerBoosting',
     'TrackerMedianFlow',
     'TrackerMIL',
@@ -156,13 +167,14 @@ export default function (args: TestContext) {
 
     describe('update', () => {
       it('should throw if no args', () => {
-        // @ts-expect-error
+        // @ts-expect-error Error: expected argument 0 to be of type
         expect(() => (new cv.MultiTracker()).update()).to.throw('MultiTracker::Update - Error: expected argument 0 to be of type');
       });
 
       it('returns bounding box', () => {
         const tracker = new cv.MultiTracker();
-        const methods = ['addMIL', 'addBOOSTING', 'addMEDIANFLOW', 'addTLD', 'addKCF'];
+        const methods0 = ['addMIL', 'addBOOSTING', 'addMEDIANFLOW', 'addTLD', 'addKCF'] as const;
+        const methods = [...methods0] as Array <typeof methods0[number] | 'addCSRT' | 'addMOSSE'>;
         if (hasKCF) {
           methods.push('addKCF');
         }

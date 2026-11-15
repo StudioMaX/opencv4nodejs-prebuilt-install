@@ -1,15 +1,13 @@
+import { SimpleBlobDetectorParams } from '../../../typings';
+import { assertPropsWithValue } from '../../utils/testUtils';
 import { TestContext } from '../model';
 
 export default function (args: TestContext) {
-  const { cv, utils } = args;
-
-  const {
-    assertPropsWithValue,
-  } = utils;
+  const { cv } = args;
 
   describe('accessors', () => {
     it('properties are set correctly', () => {
-      const params = {
+      const params: SimpleBlobDetectorParams = {
         blobColor: 255,
         minThreshold: 20.5,
         maxThreshold: 400.5,
@@ -32,7 +30,7 @@ export default function (args: TestContext) {
       };
 
       const detectorParams = new cv.SimpleBlobDetectorParams();
-      Object.keys(params).forEach((param) => { detectorParams[param] = params[param]; });
+      Object.keys(params).forEach((param: keyof SimpleBlobDetectorParams) => { (detectorParams as any)[param] = params[param]; });
       assertPropsWithValue(detectorParams, params);
     });
   });

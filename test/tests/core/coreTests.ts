@@ -1,30 +1,30 @@
 import { expect } from 'chai';
-import { Mat, Point3 } from '@u4/opencv4nodejs';
+import { Mat, Point2, Point3 } from '@u4/opencv4nodejs';
+import asyncHooks from 'async_hooks';
 import { TestContext } from '../model';
+import {
+  assertPropsWithValue,
+  expectToBeVec2,
+  expectToBeVec3,
+  expectToBeVec4,
+  funcShouldRequireArgs,
+} from '../../utils/testUtils';
+import { assertDataDeepEquals, assertMetaData } from '../../utils/matTestUtils';
+import { generateAPITests } from '../../utils/generateAPITests';
 
-let asyncHooks = null;
-
-try {
-  asyncHooks = require('async_hooks');
-} catch (e) {
-  //
-}
+// let asyncHooks = null;
+// try {
+//   asyncHooks = require('async_hooks');
+// } catch (e) {
+//   //
+// }
 
 export default function (args: TestContext) {
-  const { cv, utils } = args;
-
   const {
-    funcShouldRequireArgs,
-    generateAPITests,
+    cv,
     generateClassMethodTests,
-    assertMetaData,
-    assertPropsWithValue,
-    assertDataDeepEquals,
-    expectToBeVec2,
-    expectToBeVec3,
-    expectToBeVec4,
     getNodeMajorVersion,
-  } = utils;
+  } = args;
 
   const partitionTests = (createInstance: () => any) => {
     it('should return labels and numLabels', () => {
@@ -58,12 +58,13 @@ export default function (args: TestContext) {
       getDut: () => cv,
       methodName: 'getBuildInformation',
       hasAsync: false,
-      expectOutput: () => { },
+      expectOutput: () => { /* empty */ },
     });
   });
 
   describe('partition', () => {
-    funcShouldRequireArgs(() => (cv as any).partition());
+    // @ts-expect-error need args
+    funcShouldRequireArgs(() => cv.partition());
 
     describe('Point2 input', () => {
       partitionTests(() => new cv.Point2(0, 0));
@@ -95,7 +96,7 @@ export default function (args: TestContext) {
   });
 
   describe('kmeans', () => {
-    // @ts-ignore:next-line
+    // @ts-expect-error kmeans constructor expect partameters
     funcShouldRequireArgs(() => cv.kmeans());
     const points2 = [
       [0, 0], [1000, 900], [-1000, -900], [-1100, -1000], [1100, 1000], [10, 10],
@@ -188,7 +189,7 @@ export default function (args: TestContext) {
     const angle = new cv.Mat([[0, Math.PI / 2, Math.PI]], cv.CV_32F);
     const angleInDegrees = true;
 
-    const expectOutput = (res) => {
+    const expectOutput = (res: { x: Mat | number[]; y: Mat | number[]; }) => {
       expect(res).to.have.property('x').to.be.instanceOf(cv.Mat);
       expect(res).to.have.property('y').to.be.instanceOf(cv.Mat);
       assertMetaData(res.x)(1, 3, cv.CV_32F);
@@ -213,18 +214,17 @@ export default function (args: TestContext) {
   });
 
   describe('setNumThreads', () => {
-    it('should try to set the number of threads'
-      + ' that used by OpenCV', () => {
-        const number = 2;
-        cv.setNumThreads(number);
-        // OpenCV will **try** to set the number of threads for the
-        // next parallel region so that `cv.getNumThreads()` don't react
-        // to this immediately.
-        // expect(cv.getNumThreads()).to.be.equal(number);
-      });
+    it('should try to set the number of threads that used by OpenCV', () => {
+      const number = 2;
+      cv.setNumThreads(number);
+      // OpenCV will **try** to set the number of threads for the
+      // next parallel region so that `cv.getNumThreads()` don't react
+      // to this immediately.
+      // expect(cv.getNumThreads()).to.be.equal(number);
+    });
 
     it('should throw when the argument is not integer', () => {
-      const expectError = (fn, msg) => {
+      const expectError = (fn: { (): void; (): void; (): void; }, msg: string) => {
         let err;
         try {
           fn();
@@ -273,7 +273,8 @@ export default function (args: TestContext) {
       it('should trigger `init` callback in async_hooks', () => {
         let typeFound = false;
         const hook = asyncHooks.createHook({
-          init: (asyncId, type, triggerAsyncId, resource) => {
+          // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+          init: (_asyncId, type, _triggerAsyncId, _resource) => {
             if (type.indexOf('opencv4nodejs') === 0) {
               typeFound = true;
               hook.disable();
@@ -285,6 +286,7 @@ export default function (args: TestContext) {
         const createInstance = () => new cv.Point2(0, 0);
         const num = 5;
         const instances = Array(num).fill(0).map(() => createInstance());
+        // eslint-disable-next-line no-unused-vars
         const { labels, numLabels } = cv.partition(instances, () => true);
         expect(typeFound).to.be.equal(true);
       });
@@ -292,7 +294,7 @@ export default function (args: TestContext) {
   }
 
   describe('addWeighted', () => {
-    const expectOutput = (res) => {
+    const expectOutput = (res: { getDataAsArray: () => any; }) => {
       assertDataDeepEquals([
         [120, 140, 160],
         [180, 200, 220],
@@ -338,8 +340,8 @@ export default function (args: TestContext) {
       [1, 1, 0],
     ], cv.CV_8U);
 
-    const expectOutput = (res, dut, args) => {
-      if (!args.some((arg) => arg === mask)) {
+    const expectOutput = (res: { minVal: any; maxVal: any; minLoc: any; maxLoc: any; }, dut: any, args2: any[]) => {
+      if (!args2.some((arg: Mat) => arg === mask)) {
         // without mask
         expect(res.minVal).to.equal(0.1);
         expect(res.maxVal).to.equal(0.6);
@@ -365,7 +367,7 @@ export default function (args: TestContext) {
   });
 
   describe('findNonZero', () => {
-    const expectOutput = (res) => {
+    const expectOutput = (res: Point2[]) => {
       expect(res).to.be.an('array').lengthOf(3);
     };
 
@@ -384,7 +386,7 @@ export default function (args: TestContext) {
   });
 
   describe('countNonZero', () => {
-    const expectOutput = (res) => {
+    const expectOutput = (res: any) => {
       expect(res).to.be.a('number').to.equal(3);
     };
 
@@ -404,9 +406,9 @@ export default function (args: TestContext) {
 
   describe('split', () => {
     const mat = new cv.Mat(4, 3, cv.CV_8UC3);
-    const expectOutput = (res) => {
+    const expectOutput = (res: any[]) => {
       expect(res).to.be.an('array').lengthOf(3);
-      res.forEach((channel) => assertMetaData(channel)(mat.rows, mat.cols, cv.CV_8U));
+      res.forEach((channel: Mat | number[]) => assertMetaData(channel)(mat.rows, mat.cols, cv.CV_8U));
     };
 
     generateClassMethodTests({
@@ -426,7 +428,7 @@ export default function (args: TestContext) {
       [0.9, 0, -0.9, 0],
     ], cv.CV_64F);
 
-    const expectOutput = (res) => {
+    const expectOutput = (res: Mat | number[]) => {
       assertMetaData(res)(mat.rows, mat.cols, cv.CV_64F);
     };
 
@@ -450,7 +452,7 @@ export default function (args: TestContext) {
 
   describe('transform', () => {
     const mat = cv.Mat.eye(3, 3, cv.CV_64FC3);
-    const expectOutput = (res) => {
+    const expectOutput = (res: number | { rows: number; cols: number; type: number; }) => {
       expect(res).to.be.instanceOf(cv.Mat);
       assertMetaData(mat)(res);
     };
@@ -676,7 +678,7 @@ export default function (args: TestContext) {
   });
 
   describe('reduce', () => {
-    const makeTest = (dim, rtype, dtype, expectedResults) => () => {
+    const makeTest = (dim: number, rtype: number, dtype: number, expectedResults: number[][]) => () => {
       const rows = 1;
       const cols = 3;
       const type = cv.CV_8UC1;
@@ -686,7 +688,8 @@ export default function (args: TestContext) {
         classNameSpace: 'Mat',
         methodNameSpace: 'Core',
         getRequiredArgs: () => ([dim, rtype, dtype]),
-        expectOutput: (res, _, args) => {
+        // eslint-disable-next-line no-unused-vars
+        expectOutput: (res) => {
           expect(res).to.be.instanceOf(cv.Mat);
           expect(res.getDataAsArray()).to.eql(expectedResults);
         },
@@ -705,18 +708,19 @@ export default function (args: TestContext) {
   });
 
   describe('eigen', () => {
-    const makeTest = (values, expectedResults) => () => {
+    const makeTest = (values: number[][] | number[][][] | number[][][][], expectedResults: number[][]) => () => {
       generateClassMethodTests({
         getClassInstance: () => new cv.Mat(values, cv.CV_32F),
         methodName: 'eigen',
         classNameSpace: 'Mat',
         methodNameSpace: 'Core',
-        expectOutput: (res, _, args) => {
+        // eslint-disable-next-line no-unused-vars
+        expectOutput: (res: Mat) => {
           expect(res).to.be.instanceOf(cv.Mat);
           const arrayRes = res.getDataAsArray();
           const tolerance = 1e-6;
-          arrayRes.forEach((r, i1) => {
-            r.forEach((n, i2) => {
+          arrayRes.forEach((r: number[], i1: number) => {
+            r.forEach((n: number, i2: number) => {
               expect(n).to.be.at.least(expectedResults[i1][i2] - tolerance);
               expect(n).to.be.at.most(expectedResults[i1][i2] + tolerance);
             });
@@ -729,7 +733,7 @@ export default function (args: TestContext) {
   });
 
   describe('solve', () => {
-    const makeTest = (values1, values2, flags, expectedResults) => () => {
+    const makeTest = (values1: number[][] | number[][][] | number[][][][], values2: number[][] | number[][][] | number[][][][], flags: number, expectedResults: number[][]) => () => {
       const m2 = new cv.Mat(values2, cv.CV_32F);
 
       generateClassMethodTests({
@@ -741,12 +745,13 @@ export default function (args: TestContext) {
           ['flags', flags],
         ]),
         getRequiredArgs: () => ([m2]),
-        expectOutput: (res, _, args) => {
+        // eslint-disable-next-line no-unused-vars
+        expectOutput: (res: Mat) => {
           expect(res).to.be.instanceOf(cv.Mat);
           const arrayRes = res.getDataAsArray();
           const tolerance = 1e-6;
-          arrayRes.forEach((r, i1) => {
-            r.forEach((n, i2) => {
+          arrayRes.forEach((r: number[], i1: number) => {
+            r.forEach((n: number, i2: number) => {
               expect(n).to.be.at.least(expectedResults[i1][i2] - tolerance);
               expect(n).to.be.at.most(expectedResults[i1][i2] + tolerance);
             });

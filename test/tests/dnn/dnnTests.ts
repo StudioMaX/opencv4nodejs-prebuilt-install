@@ -1,18 +1,14 @@
 import { expect } from 'chai';
+import { Mat } from '../../../typings';
+import { generateAPITests } from '../../utils/generateAPITests';
+import { assertMetaData } from '../../utils/matTestUtils';
 import { TestContext } from '../model';
 
 export default function (args: TestContext) {
-  const { cv, utils, getTestImg } = args;
-
-  const {
-    readTestImage,
-    generateAPITests,
-    assertMetaData,
-    cvVersionGreaterEqual,
-  } = utils;
+  const { cv, getTestImg, cvVersionGreaterEqual } = args;
 
   describe('blobFromImage', () => {
-    const expectOutput = (res) => {
+    const expectOutput = (res: Mat) => {
       expect(res).to.be.instanceOf(cv.Mat);
       assertMetaData(res)(-1, -1, cv.CV_32F);
     };

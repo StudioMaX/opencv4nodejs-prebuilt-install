@@ -1,15 +1,12 @@
 import { expect } from 'chai';
+import { Point, Point2 } from '../../../typings';
+import { assertError, assertPropsWithValue } from '../../utils/testUtils';
 import { TestContext } from '../model';
 
 export default function (args: TestContext) {
-  const { cv, utils } = args;
+  const { cv } = args;
 
-  const {
-    assertError,
-    assertPropsWithValue,
-  } = utils;
-
-  const OperatorRequiresArg = (pt) => (func, isScalar?: boolean) => {
+  const OperatorRequiresArg = (pt: Point2) => (func: keyof Point, isScalar?: boolean) => {
     it('should throw if no args', () => {
       assertError(
         () => pt[func].bind(pt)(),
@@ -24,7 +21,7 @@ export default function (args: TestContext) {
     });
 
     it('should throw if insufficient args', () => {
-      // @ts-ignore:next-line
+      // @ts-expect-error need more args
       assertError(() => new cv.Point(0), 'expected arguments');
     });
 

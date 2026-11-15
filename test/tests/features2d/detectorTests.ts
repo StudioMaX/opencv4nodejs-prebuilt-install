@@ -1,15 +1,29 @@
 import { assert, expect } from 'chai';
+import {
+  AGASTDetectorProps,
+  BRISKDetectorProps,
+  FeatureDetector,
+  GFTTDetectorProps,
+  KeyPoint,
+  MSERDetectorProps,
+  SIFTDetectorParams,
+  SURFDetectorPrams,
+  // KeyPointDetector,
+} from '../../../typings';
+import { generateAPITests } from '../../utils/generateAPITests';
+import { assertPropsWithValue } from '../../utils/testUtils';
 import { TestContext } from '../model';
 
-export default function (args: TestContext) {
-  const { cv, utils, getTestImg } = args;
-  const {
-    assertPropsWithValue,
-    generateAPITests,
-  } = utils;
+// type AllDetector = SURFDetector | SIFTDetector | AKAZEDetector | BRISKDetector | MSERDetector | ORBDetector;
 
-  return (defaults, customProps, Detector, implementsCompute = true) => {
-    const getDut = () => (typeof Detector === 'function' ? new Detector() : Detector);
+type DetectorProps = BRISKDetectorProps | GFTTDetectorProps | MSERDetectorProps | AGASTDetectorProps | SIFTDetectorParams | SURFDetectorPrams;
+
+export default function (args: TestContext) {
+  const { cv, getTestImg250 } = args;
+
+  // KeyPointDetector | typeof KeyPointDetector
+  return (defaults: DetectorProps, customProps: {args: string[], values: Array<number | boolean>}, Detector: any, implementsCompute = true) => {
+    const getDut = (): FeatureDetector => (typeof Detector === 'function' ? new Detector() : Detector);
 
     describe('constructor', () => {
       if (defaults) {
@@ -24,8 +38,8 @@ export default function (args: TestContext) {
 
       if (customProps) {
         it('should be constructable with custom props', () => {
-          const props = {};
-          customProps.args.forEach((arg, i) => {
+          const props: {[key: string]: number | boolean} = {};
+          customProps.args.forEach((arg: string, i) => {
             props[arg] = customProps.values[i];
           });
           /* eslint-disable new-parens */
@@ -34,8 +48,8 @@ export default function (args: TestContext) {
         });
 
         it('should be constructable with custom props object', () => {
-          const props = {};
-          customProps.args.forEach((arg, i) => {
+          const props: {[key: string]: number | boolean} = {};
+          customProps.args.forEach((arg: string, i) => {
             props[arg] = customProps.values[i];
           });
           assertPropsWithValue(new Detector(props), props);
@@ -59,9 +73,9 @@ export default function (args: TestContext) {
         methodName: 'detect',
         methodNameSpace: 'FeatureDetector',
         getRequiredArgs: () => ([
-          getTestImg(),
+          getTestImg250(),
         ]),
-        expectOutput: (keyPoints) => {
+        expectOutput: (keyPoints: KeyPoint[]) => {
           expect(keyPoints).to.be.a('array');
           assert(keyPoints.length > 0, 'no KeyPoints detected');
           keyPoints.forEach((kp) => assert(kp instanceof cv.KeyPoint));
@@ -71,18 +85,18 @@ export default function (args: TestContext) {
 
     if (implementsCompute) {
       describe('compute', () => {
-        let dut;
-        let keyPoints;
+        let dut: FeatureDetector;
+        let keyPoints : KeyPoint[];
         before(() => {
           dut = getDut();
-          keyPoints = dut.detect(getTestImg());
+          keyPoints = dut.detect(getTestImg250());
         });
         generateAPITests({
           getDut,
           methodName: 'compute',
           methodNameSpace: 'FeatureDetector',
           getRequiredArgs: () => ([
-            getTestImg(),
+            getTestImg250(),
             keyPoints,
           ]),
           expectOutput: (desc) => {

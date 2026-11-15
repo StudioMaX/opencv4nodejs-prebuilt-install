@@ -1,20 +1,18 @@
 import { expect } from 'chai';
+import { Mat, Vec3 } from '../../../typings';
+import { generateAPITests } from '../../utils/generateAPITests';
+import { assertMetaData, dangerousDeepEquals } from '../../utils/matTestUtils';
+import { assertError, assertPropsWithValue, expectToBeVec4 } from '../../utils/testUtils';
 import { TestContext } from '../model';
 
-export default function (args: TestContext) {
-  const { cv, utils, getTestImg } = args;
-
+export default function (ctxt: TestContext) {
   const {
-    assertError,
-    assertPropsWithValue,
-    assertMetaData,
-    dangerousDeepEquals,
-    generateAPITests,
+    cv,
+    getTestImg,
     generateClassMethodTests,
-    expectToBeVec4,
     cvVersionLowerThan,
     cvVersionGreaterEqual,
-  } = utils;
+  } = ctxt;
 
   const rgbMatData = [
     Array(5).fill([255, 125, 0]),
@@ -50,7 +48,7 @@ export default function (args: TestContext) {
   });
 
   describe('smoothing', () => {
-    const expectOutput = (blurred) => {
+    const expectOutput = (blurred: Mat) => {
       assertMetaData(blurred)(rgbMat.rows, rgbMat.cols, rgbMat.type);
       expect(dangerousDeepEquals(blurred.getDataAsArray(), rgbMat.getDataAsArray())).to.be.false;
     };
@@ -430,7 +428,7 @@ export default function (args: TestContext) {
         'COLORMAP_PINK',
         'COLORMAP_HOT',
         'COLORMAP_PARULA',
-      ];
+      ] as const;
 
       COLORMAP_TYPE_NAMES.forEach((name) => {
         expect(typeof cv[name]).to.be.equal('number');
@@ -483,7 +481,7 @@ export default function (args: TestContext) {
     ];
     const src = new cv.Mat(srcData, cv.CV_8UC3);
     const dstDepth8 = new cv.Mat(dstData, cv.CV_8UC3);
-    let dst;
+    let dst: Mat;
     const mask = new cv.Mat(maskData, cv.CV_8UC1);
 
     it('should throw if dst has not a depth of CV_32F or CV_64F', () => {
@@ -501,11 +499,12 @@ export default function (args: TestContext) {
         mask,
       ]),
       expectOutput: () => {
-        const channelIndices = ['x', 'y', 'z'];
+        const channelIndices = ['x', 'y', 'z'] as const;
         for (let row = 0; row < dst.rows; row++) {
           for (let col = 0; col < dst.cols; col++) {
             for (let channel = 0; channel < dst.channels; channel++) {
-              expect(dst.at(row, col)[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
+              const value = dst.at(row, col) as unknown as Vec3;
+              expect(value[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
             }
           }
         }
@@ -537,7 +536,7 @@ export default function (args: TestContext) {
 
     const src1 = new cv.Mat(srcData1, cv.CV_8UC3);
     const src2 = new cv.Mat(srcData2, cv.CV_8UC3);
-    let dst;
+    let dst: Mat;
     const dstDepth8 = new cv.Mat(dstData, cv.CV_8UC3);
     const mask = new cv.Mat(maskData, cv.CV_8UC1);
 
@@ -557,11 +556,12 @@ export default function (args: TestContext) {
         mask,
       ]),
       expectOutput: () => {
-        const channelIndices = ['x', 'y', 'z'];
+        const channelIndices = ['x', 'y', 'z'] as const;
         for (let row = 0; row < dst.rows; row++) {
           for (let col = 0; col < dst.cols; col++) {
             for (let channel = 0; channel < dst.channels; channel++) {
-              expect(dst.at(row, col)[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
+              const value = dst.at(row, col) as unknown as Vec3;
+              expect(value[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
             }
           }
         }
@@ -588,7 +588,7 @@ export default function (args: TestContext) {
     ];
 
     const src = new cv.Mat(srcData, cv.CV_8UC3);
-    let dst;
+    let dst: Mat;
     const dstDepth8 = new cv.Mat(dstData, cv.CV_8UC3);
     const mask = new cv.Mat(maskData, cv.CV_8UC1);
 
@@ -607,11 +607,12 @@ export default function (args: TestContext) {
         mask,
       ]),
       expectOutput: () => {
-        const channelIndices = ['x', 'y', 'z'];
+        const channelIndices = ['x', 'y', 'z'] as const;
         for (let row = 0; row < dst.rows; row++) {
           for (let col = 0; col < dst.cols; col++) {
             for (let channel = 0; channel < dst.channels; channel++) {
-              expect(dst.at(row, col)[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
+              const value = dst.at(row, col) as undefined as Vec3;
+              expect(value[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
             }
           }
         }
@@ -639,7 +640,7 @@ export default function (args: TestContext) {
     ];
 
     const src = new cv.Mat(srcData, cv.CV_8UC3);
-    let dst;
+    let dst: Mat;
     const dstDepth8 = new cv.Mat(dstData, cv.CV_8UC3);
     const mask = new cv.Mat(maskData, cv.CV_8UC1);
 
@@ -659,11 +660,12 @@ export default function (args: TestContext) {
         mask,
       ]),
       expectOutput: () => {
-        const channelIndices = ['x', 'y', 'z'];
+        const channelIndices = ['x', 'y', 'z'] as const;
         for (let row = 0; row < dst.rows; row++) {
           for (let col = 0; col < dst.cols; col++) {
             for (let channel = 0; channel < dst.channels; channel++) {
-              expect(dst.at(row, col)[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
+              const value = dst.at(row, col) as unknown as Vec3;
+              expect(value[channelIndices[channel]]).to.be.closeTo(expectedData[row][col][channel], 1e-5);
             }
           }
         }
