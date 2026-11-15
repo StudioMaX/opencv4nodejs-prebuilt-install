@@ -117,12 +117,10 @@ namespace MatBindings {
       return "";
     }
 
-    static void freeBufferCallback(char* data, void* hint) {
-      free(data);
-    }
-
     v8::Local<v8::Value> getReturnValue() {
-      return Nan::NewBuffer(data, size, freeBufferCallback, 0).ToLocalChecked();
+      v8::Local<v8::Value> copyData = Nan::CopyBuffer(data, size).ToLocalChecked();
+      free(data);
+      return copyData;
     }
   };
 
