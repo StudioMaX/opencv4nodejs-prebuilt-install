@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { expect } from 'chai';
+import { Mat } from '@u4/opencv4nodejs';
 import { TestContext } from '../model';
-import { Mat } from '../../../typings';
 
 export default function (args: TestContext) {
   const { cv, utils } = args;
@@ -26,8 +26,8 @@ export default function (args: TestContext) {
 
   const getLennaBase64Buf = () => lennaBase64Buf;
   const getGotBase64Buf = () => gotBase64Buf;
-  let imageData: Buffer;
-  let imageDataCopy: Buffer;
+  // let imageData: Buffer;
+  // let imageDataCopy: Buffer;
 
   const lennaBase64File = fs.readFileSync(path.join(__dirname, 'data/lennaBase64.json'), { encoding: 'utf8', flag: 'r' });
   const gotBase64File = fs.readFileSync(path.join(__dirname, 'data/gotBase64.json'), { encoding: 'utf8', flag: 'r' });
@@ -36,8 +36,8 @@ export default function (args: TestContext) {
     got = cv.imread(getTestImagePath(false));
     lennaBase64Buf = Buffer.from(JSON.parse(lennaBase64File).data, 'base64');
     gotBase64Buf = Buffer.from(JSON.parse(gotBase64File).data, 'base64');
-    imageData = fs.readFileSync(getTestImagePath(true));
-    imageDataCopy = Buffer.from(imageData);
+    // imageData = fs.readFileSync(getTestImagePath(true));
+    // imageDataCopy = Buffer.from(imageData);
   });
 
   describe('imread', () => {
@@ -74,13 +74,14 @@ export default function (args: TestContext) {
     });
   });
 
-  describe('imencode', () => {
-    describe('png', () => {
+  describe('io imencode', () => {
+    describe('io imencode png', () => {
       const pngPrefixLength = 18;
 
       const ext = '.png';
       const flags = [cv.IMWRITE_PNG_COMPRESSION];
       generateAPITests({
+        prefix: 'io imencode png',
         getDut: () => cv,
         methodName: 'imencode',
         getRequiredArgs: () => ([
@@ -88,18 +89,21 @@ export default function (args: TestContext) {
           lenna,
         ]),
         getOptionalArg: () => flags,
-        expectOutput: (enc) => {
-          expect(enc.slice(0, pngPrefixLength)).to.deep.equal(getLennaBase64Buf().slice(0, pngPrefixLength));
+        expectOutput: (enc: Uint8Array) => {
+          const encPrefix = enc.slice(0, pngPrefixLength);
+          const lennaPrefix = getLennaBase64Buf().slice(0, pngPrefixLength);
+          expect(encPrefix).to.deep.equal(lennaPrefix);
         },
       });
     });
 
-    describe('jpg', () => {
+    describe('io imencode jpg', () => {
       const jpgPrefixLength = 12;
 
       const ext = '.jpg';
       const flags = [cv.IMWRITE_JPEG_QUALITY];
       generateAPITests({
+        prefix: 'io imencode jpg',
         getDut: () => cv,
         methodName: 'imencode',
         getRequiredArgs: () => ([
@@ -107,15 +111,18 @@ export default function (args: TestContext) {
           got,
         ]),
         getOptionalArg: () => flags,
-        expectOutput: (enc) => {
-          expect(enc.slice(0, jpgPrefixLength)).to.deep.equal(getGotBase64Buf().slice(0, jpgPrefixLength));
+        expectOutput: (enc: Uint8Array) => {
+          const encPrefix = enc.slice(0, jpgPrefixLength);
+          const lennaPrefix = getGotBase64Buf().slice(0, jpgPrefixLength);
+          expect(encPrefix).to.deep.equal(lennaPrefix);
         },
       });
     });
   });
 
-  describe('imdecode', () => {
-    describe('sync', () => {
+  describe('io imdecode', () => {
+    describe('io imdecode sync', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore:next-line
       funcShouldRequireArgs(cv.imdecode);
 
@@ -130,7 +137,7 @@ export default function (args: TestContext) {
       });
     });
 
-    describe('async', () => {
+    describe('io imdecode async', () => {
       _asyncFuncShouldRequireArgs(cv.imdecodeAsync);
 
       it('should decode png', async () => {

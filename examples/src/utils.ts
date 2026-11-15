@@ -5,6 +5,7 @@ export { default as cv } from '@u4/opencv4nodejs';
 import Axios from 'axios';
 import ProgressBar from 'progress';
 import pc from 'picocolors';
+import crypto from 'crypto';
 
 export const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -30,7 +31,7 @@ export function getCachedFile(localName: string, url: string, opts?: { notice?: 
       method: 'GET',
       responseType: 'stream',
     });
-    const totalLength = headers['content-length'];
+    const totalLength = headers['content-length'] || "0";
     console.log(`Starting download ${localName}`);
     const writer = fs.createWriteStream(localFile);
     if (!opts?.noProgress) {
@@ -77,25 +78,32 @@ export const getResourcePath = (name?: string): string => {
   return fullpath;
 };
 
-export const grabFrames = (videoFile: number | string, delay: number, onFrame: (mat: Mat) => void): void => {
+export const grabFrames = async (videoFile: number | string, kpDelay: number, onFrame: (mat: Mat, frameid: number) => void | Promise<void>): Promise<void> => {
   const cap = new cv.VideoCapture(videoFile);
   let done = false;
-  const intvl = setInterval(() => {
+  let frameid = 0;
+  //const intvl = setInterval(async () => {
+  for (; ;) {
     let frame = cap.read();
     // loop back to start on end of stream reached
     if (frame.empty) {
       cap.reset();
       frame = cap.read();
     }
-    onFrame(frame);
-
-    const key = cv.waitKey(delay);
+    frameid++;
+    const p = onFrame(frame, frameid);
+    if (p)
+      await p;
+    const key = cv.waitKey(kpDelay);
     done = key !== -1 && key !== 255;
     if (done) {
-      clearInterval(intvl);
+      //clearInterval(intvl);
       console.log('Key pressed, exiting.');
+      return;
     }
-  }, 0);
+     await delay(0);
+  }
+  //}, 0);
 };
 
 export const runVideoDetection = (src: number, detect: (mat: Mat) => void): void => {
@@ -135,8 +143,13 @@ export const drawRect = (image: Mat, rect: Rect, color: Vec3, opts = { thickness
     cv.LINE_8
   );
 
+const { HEADLESS } = process.env;
 
 export async function wait4key(): Promise<'terminal' | 'window'> {
+  if (HEADLESS) {
+    await delay(100);
+    return 'terminal';
+  }
   // console.log('press a key to continue.');
   if (process.stdin.isTTY)
     process.stdin.setRawMode(true);
@@ -163,6 +176,27 @@ export async function wait4key(): Promise<'terminal' | 'window'> {
   if (process.stdin.isTTY)
     process.stdin.setRawMode(false);
   return done;
+}
+
+/**
+ * call cv.imshow() if HEADLESS is not set
+ * else display image md5
+ */
+export function cv_imshow(winName: string, img: Mat): void {
+  if (HEADLESS) {
+    const md5sum = crypto.createHash('md5');
+    const buffer = img.getData();
+    md5sum.update(buffer)
+    console.log(`display windows ${winName} MD5:${md5sum.digest('hex')}`);
+  } else {
+    return cv.imshow(winName, img);
+  }
+}
+
+export function cv_setWindowProperty(winName: string, prop_id: number, prop_value: number): void {
+  if (!HEADLESS) {
+    return cv.setWindowProperty(winName, prop_id, prop_value);
+  }
 }
 
 export const drawBlueRect = (image: Mat, rect: Rect, opts = { thickness: 2 }) =>

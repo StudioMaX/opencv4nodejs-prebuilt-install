@@ -42,9 +42,6 @@ examples/src/AgeGender/age_net.caffemodel
 .pnpm-debug.log
 examples/data/dnn/yolo-object-detection/
 lib/src/*.map
-lib/cvloader.js
-lib/opencv4nodejs.js
-lib/promisify.js
 lib/src/*.js
 examples/src/JPEGImages/
 examples/labels/
@@ -58,3 +55,4 @@ examples/src/YOLOv3-Training-Snowman-Detector/classes.names
 examples/src/YOLOv3-Training-Snowman-Detector/train.log
 examples/src/YOLOv3-Training-Snowman-Detector/darknet53.conv.74
 examples/src/YOLOv3-Training-Snowman-Detector/weights
+docs/
