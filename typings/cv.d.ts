@@ -168,7 +168,20 @@ export interface TextLine extends FontParams {
   text: string;
 }
 
+/**
+ * All non-native functions signatures go here.
+ * Implementation are injected fron lib/src/index.ts
+ */
 
+/**
+ * return openCV version as an array containing Major, minor, patch
+ */
+export function getVersion(): [number, number, number];
+
+/**
+ * return openCV version as a string
+ */
+export function getVersionString(): string;
 
 // non Natif
 export function drawDetection(img: Mat, inputRect: Rect, opts?: DrawDetectionParams): Rect;
@@ -207,3 +220,6 @@ export function minAsync(src1: Mat, src2: Mat, dst: Mat): Promise<Mat>;
 
 export function max(src1: Mat, src2: Mat, dst: Mat): Mat;
 export function maxAsync(src1: Mat, src2: Mat, dst: Mat): Promise<Mat>;
+
+export function magnitude(x: Mat, y: Mat, magnitude: Mat): Mat;
+export function magnitudeAsync(x: Mat, y: Mat, magnitude: Mat): Promise<Mat>;
