@@ -52,10 +52,21 @@ class InstallOpencv {
     return hasLibs;
   }
 
-  static async install() {
+  static async install(forceBuild = false) {
     // if project directory has a package.json containing opencv4nodejs variables
     // apply these variables to the process environment
+    const disableAutoBuild = process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD;
     applyEnvsFromPackageJson();
+
+    // Ignore the package setting for an explicit build, but preserve a value
+    // supplied by the caller, as before the package file stopped being edited.
+    if (forceBuild) {
+      if (disableAutoBuild === undefined) {
+        delete process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD;
+      } else {
+        process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD = disableAutoBuild;
+      }
+    }
 
     if (isAutoBuildDisabled()) {
       log.info("install", "OPENCV4NODEJS_DISABLE_AUTOBUILD is set");
@@ -130,17 +141,7 @@ class InstallOpencv {
     const packageJson = require(filename);
     const file = `opencv_${process.platform}_${packageJson.opencv4nodejs.autoBuildOpencvVersion}_${process.arch}.tgz`;
 
-    delete packageJson.opencv4nodejs.disableAutoBuild;
-
-    try {
-      fs.writeFileSync(filename, JSON.stringify(packageJson, null, 2));
-    } catch (err) {
-      console.log(err);
-      process.exit(-1);
-    }
-
-    await InstallOpencv.install();
-    packageJson.opencv4nodejs.disableAutoBuild = 1;
+    await InstallOpencv.install(true);
 
     try {
       const version = packageJson.opencv4nodejs.autoBuildOpencvVersion;
@@ -220,7 +221,6 @@ class InstallOpencv {
           `${path.join(process.cwd(), "osOpencvWorlds", "win32", file)}`
         );
       }
-      fs.writeFileSync(filename, JSON.stringify(packageJson, null, 2));
     } catch (err) {
       console.log(err);
       process.exit(-1);

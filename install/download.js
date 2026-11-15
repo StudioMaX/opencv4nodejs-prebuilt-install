@@ -68,15 +68,13 @@ async function downloadLib() {
 
       await downloadIfExist(pathToDir, pathToLib, libUrl);
       await pack_1.Pack.unpack(pathToDir, pathToLib);
+    } else {
+      throw new Error(`Unsupported platform: ${process.platform}`);
     }
-    await new Promise((res) =>
-      setTimeout(() => {
-        res("done");
-      }, 5000)
-    );
     console.log("Lib has been downloaded");
   } catch (error) {
-    console.log("Download failed", error);
+    console.error("Download failed", error);
+    process.exitCode = 1;
   }
 }
 

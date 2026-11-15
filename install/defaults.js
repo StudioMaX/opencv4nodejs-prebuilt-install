@@ -5,7 +5,7 @@ const package = require("../package.json");
 
 function getPathToDirLib() {
   if (process.platform === "darwin" && process.arch === "arm64") {
-    return resolvePath(path.join(process.cwd(), "osOpencvWorlds", "darwinM1"));
+    return resolvePath(path.join(process.cwd(), "osOpencvWorlds", "darwinM1", "opencv", "build", "lib"));
   } else if (process.platform === "darwin" && process.arch !== "arm64") {
     return resolvePath(path.join(process.cwd(), "osOpencvWorlds", "darwin", "opencv", "build", "lib"));
   } else if (process.platform === "win32") {
@@ -67,12 +67,8 @@ const linkLib = (lib) => {
 };
 const libs = process.platform === "win32" ? [pathToLib] : ["-L" + pathToDirLib].concat(linkLib(pathToLib)).concat("-Wl,-rpath," + pathToDirLib);
 
-process.env["OPENCV4NODEJS_DEFINES"] = defines.join("\n");
-process.env["OPENCV4NODEJS_INCLUDES"] = pathToInclude.join("\n");
-process.env["OPENCV4NODEJS_LIBRARIES"] = libs.join("\n");
-
 module.exports = {
-  OPENCV4NODEJS_LIBRARIES: pathToLib,
-  OPENCV4NODEJS_INCLUDES: pathToInclude,
-  OPENCV4NODEJS_DEFINES: defines,
+  OPENCV4NODEJS_LIBRARIES: () => libs.join("\n"),
+  OPENCV4NODEJS_INCLUDES: () => pathToInclude.join("\n"),
+  OPENCV4NODEJS_DEFINES: () => defines.join("\n"),
 };
