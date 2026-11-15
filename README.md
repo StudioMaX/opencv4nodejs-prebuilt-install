@@ -81,6 +81,8 @@ For a GitHub test release, set the package version to a new version containing `
 
 Other `v4.6.*` tags retain the existing behavior, including publishing to npm after the build jobs succeed. The separate `vcv4.6.*` workflow builds OpenCV archives only.
 
+Each Node prebuild job also installs the test dependencies without lifecycle scripts and runs the Mocha suite and external memory tracking checks against the freshly built local addon before uploading it. `TEST_MODULE_LIST` requires `core`, `highgui`, `calib3d`, `features2d`, `imgproc`, `io` and `xfeatures2d` for the current OpenCV build configuration. The test output lists unavailable or disabled module suites; `objdetect` remains disabled, and some individual tests, including `VideoWriter`, are pending. On Linux, the MP4 `VideoCapture` suite is pending when OpenCV reports that neither FFmpeg nor GStreamer was built in. The Electron jobs currently build and upload their binaries without running this Node test suite.
+
 ## Add bindings to native methods of opencv
 
 Create fork of the repo and add necessary changes then create poll request to the repo and i will recreate libs

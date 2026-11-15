@@ -99,10 +99,15 @@ describe('cv', () => {
   console.log(`${builtModules.length} expected modules to be built:`, builtModules);
   const liveModules = Object.entries(cv.modules).filter((a) => a[1]).map((a) => a[0]);
   console.log(`${liveModules.length} visible modules:`, liveModules);
+  const skippedSuites = Object.entries(toTest)
+    .filter(([name, enabled]) => !enabled || !cv.modules[name as keyof typeof cv.modules])
+    .map(([name, enabled]) => `${name}: ${enabled ? 'module unavailable' : 'disabled'}`);
+  console.log('Skipped module suites:', skippedSuites);
 
   it('all modules should be built', () => {
-    // xfeatures2d is a non free module not available on debian disto
-    builtModules.filter((m) => m !== 'xfeatures2d').forEach((m) => expect(cv.modules).to.have.property(m, true));
+    // xfeatures2d is optional by default, but an explicit list must be enforced.
+    builtModules.filter((m) => m !== 'xfeatures2d' || process.env.TEST_MODULE_LIST)
+      .forEach((m) => expect(cv.modules).to.have.property(m, true));
   });
   if (toTest.core && cv.modules.core) {
     describe('core', () => coreTestSuite(ctxt));
