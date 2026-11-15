@@ -3,6 +3,7 @@ vs
 .vscode
 ./build
 node_modules
+/package.json.backup
 crash.log
 coverage
 coverage-report

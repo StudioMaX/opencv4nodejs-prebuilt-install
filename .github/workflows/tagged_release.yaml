@@ -213,5 +213,4 @@ jobs:
         run: npm ci --unsafe-perm
       - name: Publish tagged release to npm
         run: |
-          npm i clean-package -g
           npm run publish_package

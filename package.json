@@ -18,6 +18,7 @@
   ],
   "files": [
     "lib",
+    "typings",
     "index.js"
   ],
   "author": {
@@ -42,6 +43,7 @@
     "prepack": "clean-package --remove scripts overrides devDependencies gypfile opencv4nodejs config optionalDependencies && node ./install/prepublish.js",
     "pack": "npm pack",
     "postpack": "clean-package restore",
+    "test:package": "node scripts/check-package.cjs",
     "publish_package": "npm publish --tag latest --access=public",
     "build_src_opencvlib": "rimraf build_release_opencv &&  rimraf opencv && rimraf osOpencvWorlds/linux/opencv && rimraf osOpencvWorlds/win32/opencv && rimraf osOpencvWorlds/darwin/opencv && tsc",
     "create_opencvlib": "npm run build_src_opencvlib && node build_release_opencv/install.js",
@@ -59,6 +61,7 @@
   "devDependencies": {
     "@types/node": "^22.9.0",
     "@u4/tiny-glob": "^0.3.2",
+    "clean-package": "^2.2.0",
     "jest": "^30.2.0",
     "nan": "^2.30.0",
     "nodejs-file-downloader": "^4.13.0",
