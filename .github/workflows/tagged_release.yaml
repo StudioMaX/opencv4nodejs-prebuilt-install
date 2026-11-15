@@ -8,7 +8,18 @@ permissions:
   contents: write
 
 jobs:
+  prepare-release:
+    name: Prepare GitHub release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          skipIfReleaseExists: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
+
   prebuild-lib:
+    needs: prepare-release
     name: "Build lib on Node v${{ matrix.node }} ${{ matrix.os.name }} ${{ matrix.os.arch }}"
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
 
