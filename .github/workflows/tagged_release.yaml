@@ -104,6 +104,7 @@ jobs:
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - name: Ubuntu
