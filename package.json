@@ -44,6 +44,7 @@
     "pack": "npm pack",
     "postpack": "clean-package restore",
     "test:package": "node scripts/check-package.cjs",
+    "test:prebuild": "node scripts/check-prebuild.cjs",
     "publish_package": "npm publish --tag latest --access=public",
     "build_src_opencvlib": "rimraf build_release_opencv &&  rimraf opencv && rimraf osOpencvWorlds/linux/opencv && rimraf osOpencvWorlds/win32/opencv && rimraf osOpencvWorlds/darwin/opencv && tsc",
     "create_opencvlib": "npm run build_src_opencvlib && node build_release_opencv/install.js",

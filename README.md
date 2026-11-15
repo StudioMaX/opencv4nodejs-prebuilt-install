@@ -67,6 +67,20 @@ npm run create_opencvnode_prebuild
 
 Result in folder opencv/build/bin for windows or in opencv/build/lib for linux and darwin
 
+## Verify a prebuild and create a test release
+
+To check a prebuild for the current Node version and platform before uploading it:
+
+```bash
+npm run test:prebuild -- path/to/opencv4nodejs-prebuilt-install-v4.6.0-test.1-node-vABI-platform-arch.tar.gz
+```
+
+The check packs the npm package, installs it in a temporary project, serves the supplied prebuild over a local HTTP server, verifies the installed files match the archive, and loads the addon. It requires network access for npm dependencies; it does not publish anything.
+
+For a GitHub test release, set the package version to a new version containing `-test.`, for example `4.6.0-test.1`, update `package-lock.json`, commit and push the changes, then push the matching tag `v4.6.0-test.1`. The `v4.6.*` tag push starts the release workflow; creating a GitHub Release alone does not start it. The workflow marks `-test.` releases as prereleases, builds OpenCV and the Node/Electron prebuilds, and skips npm publication. The OpenCV archive URL and prebuild URL both depend on the package version, so the tag and package version must match. You can also create the prerelease yourself for the same tag; the workflow updates its assets.
+
+Other `v4.6.*` tags retain the existing behavior, including publishing to npm after the build jobs succeed. The separate `vcv4.6.*` workflow builds OpenCV archives only.
+
 ## Add bindings to native methods of opencv
 
 Create fork of the repo and add necessary changes then create poll request to the repo and i will recreate libs

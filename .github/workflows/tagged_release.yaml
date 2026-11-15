@@ -4,6 +4,9 @@ on:
     tags:
       - v4.6.*
 
+permissions:
+  contents: write
+
 jobs:
   prebuild-lib:
     name: "Build lib on Node v${{ matrix.node }} ${{ matrix.os.name }} ${{ matrix.os.arch }}"
@@ -67,18 +70,21 @@ jobs:
         with:
           artifacts: "osOpencvWorlds/win32/*.tgz"
           allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
       - name: "Send macos release to storage"
         if: ${{ matrix.os.name == 'macos' }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "osOpencvWorlds/${{ matrix.os.arch == 'arm64' && 'darwinM1' || 'darwin' }}/*.tgz"
           allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
       - name: "Send Ubuntu release to storage"
         if: ${{ matrix.os.name == 'Ubuntu' }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "osOpencvWorlds/linux/*.tgz"
           allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
 
   prebuild-node:
     needs:
@@ -132,10 +138,14 @@ jobs:
       - name: Prebuild
         shell: bash
         run: npm run create_opencvnode_prebuild
+      - name: Verify prebuild installation
+        shell: bash
+        run: npm run test:prebuild -- prebuilds/@stdmx/*.tar.gz
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "prebuilds/**/*.tar.gz"
           allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
 
   prebuild-electron-node18:
     needs:
@@ -192,8 +202,10 @@ jobs:
         with:
           artifacts: "prebuilds/**/*.tar.gz"
           allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, '-test.') }}
 
   deploy:
+    if: ${{ !contains(github.ref_name, '-test.') }}
     needs:
       - prebuild-node
       - prebuild-electron-node18
