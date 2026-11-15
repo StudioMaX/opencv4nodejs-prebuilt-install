@@ -146,7 +146,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Verify test package resolution
         working-directory: test
-        run: node -e "const fs = require('fs'); const path = require('path'); const actual = fs.realpathSync(require.resolve('@u4/opencv4nodejs')); const expected = fs.realpathSync(path.resolve('../lib/opencv4nodejs.js')); if (actual !== expected) throw new Error('Tests are not using the local package: ' + actual); const cv = require('@u4/opencv4nodejs'); if (!cv) throw new Error('Failed to load the freshly built addon'); console.log('Testing local addon:', actual, cv.version);"
+        run: >-
+          node -e "const fs = require('fs'); const path = require('path'); const actual = fs.realpathSync(require.resolve('@u4/opencv4nodejs')); const expected = fs.realpathSync(path.resolve('../lib/opencv4nodejs.js')); if (actual !== expected) throw new Error('Tests are not using the local package: ' + actual); const cv = require('@u4/opencv4nodejs'); if (!cv) throw new Error('Failed to load the freshly built addon'); console.log('Testing local addon:', actual, cv.version);"
       - name: Test fresh addon
         working-directory: test
         env:
