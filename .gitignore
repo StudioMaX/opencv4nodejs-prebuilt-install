@@ -42,6 +42,7 @@ examples/src/AgeGender/age_net.caffemodel
 examples/data/dnn/yolo-object-detection/
 lib/src/*.map
 lib/src/*.js
+!lib/src/misc.js
 examples/src/JPEGImages/
 examples/labels/
 examples/*.txt
