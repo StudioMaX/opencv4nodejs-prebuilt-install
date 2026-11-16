@@ -40,6 +40,8 @@ import * as cv from 'opencv4nodejs-prebuilt-install'
 
 ## Local compiling
 
+The JavaScript runtime includes TypeScript sources. After changing `lib/promisify.ts` or the TypeScript files in `lib/src/`, run `npm run build:runtime` and include the generated JavaScript in the change. `npm pack` also builds these files before packaging.
+
 Set your own properties inside of package.json for opencv4nodejs up to 4.6.0 depends on necessary versions and flags
 
 ```nodejs

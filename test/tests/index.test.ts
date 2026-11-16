@@ -114,6 +114,33 @@ describe('cv', () => {
   }
   if (toTest.imgproc && cv.modules.imgproc) {
     describe('imgproc', () => imgprocTestSuite(ctxt));
+    describe('drawing helpers', () => {
+      it('sizes a text box using each line’s font settings', () => {
+        const img = new cv.Mat(500, 500, cv.CV_8UC1, 100);
+        const lines = [
+          { text: 'large text', fontType: cv.FONT_HERSHEY_COMPLEX, fontSize: 1.7, thickness: 3 },
+          { text: 'small', fontType: cv.FONT_HERSHEY_PLAIN, fontSize: 0.6, thickness: 1 },
+        ];
+        const sizes = lines.map((line) => cv.getTextSize(line.text, line.fontType, line.fontSize, line.thickness).size);
+        const width = Math.max(...sizes.map((size) => size.width)) + 20;
+        const height = sizes.reduce((sum, size) => sum + size.height, 0) + 30;
+
+        expect(cv.drawTextBox(img, { x: 5, y: 5 }, lines, 0.5)).to.equal(img);
+        expect(img.at(5 + height - 1, 5 + width - 1)).to.equal(50);
+        expect(img.at(5 + height - 1, 5 + width)).to.equal(100);
+        expect(img.at(5 + height, 5 + width - 1)).to.equal(100);
+      });
+
+      it('draws the square detection and returns its rectangle', () => {
+        const img = new cv.Mat(120, 120, cv.CV_8UC1, 0);
+        const input = new cv.Rect(20, 20, 40, 60);
+        const expected = input.toSquare();
+        const rect = cv.drawDetection(img, input, { color: new cv.Vec3(255, 255, 255), segmentFraction: 4 });
+        expect([rect.x, rect.y, rect.width, rect.height])
+          .to.deep.equal([expected.x, expected.y, expected.width, expected.height]);
+        expect(img.countNonZero()).to.be.greaterThan(0);
+      });
+    });
   }
   if (toTest.calib3d && cv.modules.calib3d) {
     describe('calib3d', () => calib3dTestSuite(ctxt));
