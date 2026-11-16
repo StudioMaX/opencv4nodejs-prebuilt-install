@@ -228,6 +228,12 @@ jobs:
       - name: Prebuild
         shell: bash
         run: npm run create_opencvnode_prebuild -- -t ${{matrix.electron}} -r ${{matrix.runtime}}
+      - name: Install Electron for smoke test
+        shell: bash
+        run: npm install --prefix "$RUNNER_TEMP/electron-smoke" --no-audit --no-fund "electron@${{ matrix.electron }}"
+      - name: Test Electron addon
+        shell: bash
+        run: node scripts/check-electron.cjs "$RUNNER_TEMP/electron-smoke" "${{ matrix.electron }}"
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "prebuilds/**/*.tar.gz"
