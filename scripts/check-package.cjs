@@ -40,6 +40,26 @@ try {
   assert(fs.existsSync(path.join(packageDir, manifest.main)), 'package entrypoint is missing');
   assert(fs.existsSync(path.join(packageDir, manifest.typings)), 'TypeScript entrypoint is missing');
   assert(fs.existsSync(path.join(packageDir, 'lib', 'src', 'misc.js')), 'runtime helpers are missing');
+  assert(fs.existsSync(path.join(packageDir, 'lib', 'haarcascades', 'haarcascade_frontalface_default.xml')), 'Haar cascades are missing');
+  assert(fs.existsSync(path.join(packageDir, 'lib', 'lbpcascades', 'lbpcascade_frontalface.xml')), 'LBP cascades are missing');
+  function checkRuntimeFiles(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) checkRuntimeFiles(file);
+      else assert(/\.(?:js|xml)$/.test(entry.name), `unexpected file in packaged lib: ${file}`);
+    }
+  }
+  checkRuntimeFiles(path.join(packageDir, 'lib'));
+
+  const debug = spawnSync(process.execPath, ['-e', "require('@stdmx/opencv4nodejs-prebuilt-install')"], {
+    cwd: consumer,
+    encoding: 'utf8',
+    env: { ...process.env, OPENCV4NODES_DEBUG_REQUIRE: '1', NODE_OPTIONS: '' },
+  });
+  assert.strictEqual(debug.status, 0, `debug load failed: ${debug.stderr}`);
+  assert.match(debug.stderr, /require path is .*opencv4nodejs/);
+  assert.match(debug.stderr, /failed to require cv with exception: .*opencv4nodejs/);
+  assert.doesNotMatch(debug.stderr, /Cannot find module ['"]npmlog/);
 
   fs.writeFileSync(path.join(consumer, 'index.ts'), [
     "import cv, { Mat } from '@stdmx/opencv4nodejs-prebuilt-install';",

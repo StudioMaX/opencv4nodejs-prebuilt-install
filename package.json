@@ -17,7 +17,8 @@
     "typescript"
   ],
   "files": [
-    "lib",
+    "lib/**/*.js",
+    "lib/**/*.xml",
     "typings",
     "index.js"
   ],
