@@ -1,6 +1,6 @@
 {
   "name": "@stdmx/opencv4nodejs-prebuilt-install",
-  "version": "4.6.0-test.6",
+  "version": "4.6.0-test.7",
   "description": "Asynchronous OpenCV 3.x / 4.x nodejs bindings with JavaScript and TypeScript API.",
   "keywords": [
     "opencv",
