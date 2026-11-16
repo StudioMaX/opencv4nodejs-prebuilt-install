@@ -1,7 +1,56 @@
 #include "CustomMatAllocator.h"
+#include <node.h>
+#include <stdexcept>
 //#include <iostream>
 
 #ifdef OPENCV4NODEJS_ENABLE_EXTERNALMEMTRACKING
+
+CustomMatAllocator::CustomMatAllocator() {
+    stdAllocator = cv::Mat::getStdAllocator();
+    variables = new VARIABLES;
+    variables->TotalMem = 0;
+    variables->CountMemAllocs = 0;
+    variables->CountMemDeAllocs = 0;
+    variables->TotalJSMem = 0;
+    variables->main_thread_id = std::this_thread::get_id();
+    variables->isolate = v8::Isolate::GetCurrent();
+    variables->asyncOpen = false;
+    int status = uv_async_init(node::GetCurrentEventLoop(variables->isolate), &variables->async, OnAsync);
+    if (status != 0) {
+        delete variables;
+        throw std::runtime_error(uv_strerror(status));
+    }
+    variables->async.data = this;
+    variables->asyncOpen = true;
+    uv_unref(reinterpret_cast<uv_handle_t*>(&variables->async));
+    node::AddEnvironmentCleanupHook(variables->isolate, Cleanup, this);
+}
+
+void CustomMatAllocator::OnAsync(uv_async_t* handle) {
+    CustomMatAllocator* allocator = static_cast<CustomMatAllocator*>(handle->data);
+    v8::Isolate::Scope isolateScope(allocator->variables->isolate);
+    v8::HandleScope handleScope(allocator->variables->isolate);
+    allocator->FixupJSMem();
+}
+
+void CustomMatAllocator::Cleanup(void* data) {
+    CustomMatAllocator* allocator = static_cast<CustomMatAllocator*>(data);
+    // Prevent worker threads from signaling the handle after it starts closing.
+    allocator->variables->MemTotalChangeMutex.lock();
+    allocator->variables->asyncOpen = false;
+    uv_close(reinterpret_cast<uv_handle_t*>(&allocator->variables->async), nullptr);
+    allocator->variables->MemTotalChangeMutex.unlock();
+}
+
+void CustomMatAllocator::ScheduleJSMemFixup() const {
+    // Allocator callbacks may run in an OpenCV worker or during a V8 GC.
+    // uv_async_send coalesces notifications and never calls V8 in that context.
+    variables->MemTotalChangeMutex.lock();
+    if (variables->asyncOpen) {
+        uv_async_send(&variables->async);
+    }
+    variables->MemTotalChangeMutex.unlock();
+}
 
 cv::UMatData* CustomMatAllocator::allocate(
 	int dims, const int* sizes, int type, void* data0, size_t* step,
@@ -24,7 +73,7 @@ cv::UMatData* CustomMatAllocator::allocate(
                 variables->TotalMem += u->size;
                 variables->CountMemAllocs ++;
                 variables->MemTotalChangeMutex.unlock();
-                this->FixupJSMem();
+                this->ScheduleJSMemFixup();
             } catch (...){
                 printf("CustomMatAllocator::allocate - exception adjusting memory\n");
             }
@@ -60,7 +109,7 @@ void CustomMatAllocator::deallocate(cv::UMatData* u) const
         }
     }
     stdAllocator->deallocate(u);
-    this->FixupJSMem();
+    this->ScheduleJSMemFixup();
 }
 
 

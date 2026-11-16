@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <stdint.h>
+#include <uv.h>
 
 #include "NativeNodeUtils.h"
 #include "Size.h"
@@ -37,18 +38,12 @@ public:
 
         // the main JS thread
         std::thread::id main_thread_id;
+        v8::Isolate* isolate;
+        uv_async_t async;
+        bool asyncOpen;
     } VARIABLES;
 
-    CustomMatAllocator( ) {
-        stdAllocator = cv::Mat::getStdAllocator();
-        variables = new VARIABLES;
-        variables->TotalMem = 0; // total mem allocated by this allocator
-        variables->CountMemAllocs = 0;
-        variables->CountMemDeAllocs = 0;
-        variables->TotalJSMem = 0; // total mem told to JS so far
-
-        variables->main_thread_id = std::this_thread::get_id();
-    }
+    CustomMatAllocator();
     ~CustomMatAllocator( ) {
         delete variables;
         variables = NULL;
@@ -83,6 +78,10 @@ public:
     // function which adjusts NAN mem to match allocated mem.
     // WILL ONLY ACTUALLY DO ANYTHING FROM MAIN JS LOOP
     void FixupJSMem() const;
+    void ScheduleJSMemFixup() const;
+
+    static void OnAsync(uv_async_t* handle);
+    static void Cleanup(void* data);
 
 
     VARIABLES *variables;

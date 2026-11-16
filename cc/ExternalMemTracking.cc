@@ -1,4 +1,5 @@
 #include "ExternalMemTracking.h"
+#include <exception>
 #include <iostream>
 
 #ifdef OPENCV4NODEJS_ENABLE_EXTERNALMEMTRACKING
@@ -65,8 +66,12 @@ NAN_METHOD(ExternalMemTracking::DangerousEnableCustomMatAllocator) {
 	bool success = false;
 #ifdef OPENCV4NODEJS_ENABLE_EXTERNALMEMTRACKING
 	if (ExternalMemTracking::custommatallocator == NULL) {
-		ExternalMemTracking::custommatallocator = new CustomMatAllocator();
-		cv::Mat::setDefaultAllocator(ExternalMemTracking::custommatallocator);
+		try {
+			ExternalMemTracking::custommatallocator = new CustomMatAllocator();
+			cv::Mat::setDefaultAllocator(ExternalMemTracking::custommatallocator);
+		} catch (const std::exception& err) {
+			return Nan::ThrowError(err.what());
+		}
 	}
 	success = ExternalMemTracking::custommatallocator != NULL;
 #endif
