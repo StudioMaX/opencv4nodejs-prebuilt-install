@@ -427,7 +427,11 @@ NAN_METHOD(Mat::New) {
       // tak first argument as dim array;
       std::vector<int> sizes(rowArray0->Length());
       for (int i = 0; i < (int)rowArray0->Length(); i++) {
-        sizes[i] = (int)FF::DoubleConverter::unwrapUnchecked(Nan::Get(rowArray0, i).ToLocalChecked());
+        v8::Local<v8::Value> size = Nan::Get(rowArray0, i).ToLocalChecked();
+        if (!size->IsInt32() || Nan::To<int32_t>(size).FromJust() < 0) {
+          return tryCatch.throwError("Mat dimensions must be non-negative integers, at index: " + std::to_string(i));
+        }
+        sizes[i] = Nan::To<int32_t>(size).FromJust();
       }
       cv::Mat mat = cv::Mat(sizes, type);
       self->setNativeObject(mat);

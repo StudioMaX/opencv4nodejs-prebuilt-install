@@ -20,6 +20,14 @@ export default function (args: TestContext) {
   };
 
   describe('constructor from js array', () => {
+    it('rejects nested arrays instead of treating them as matrix dimensions', () => {
+      assert.throws(() => new cv.Mat([[4, 5, 6]] as any, cv.CV_32FC3), /Mat dimensions must be non-negative integers/);
+    });
+
+    it('accepts a flat array of non-negative matrix dimensions', () => {
+      const mat = new cv.Mat([2, 3], cv.CV_8UC1);
+      assertMetaData(mat)(2, 3, cv.CV_8UC1);
+    });
     // since v6.2.0 if args[0] is a simple array it is read as an sizes[]
     // it('should throw column must be an array', () => {
     //   let errMsg = '';
