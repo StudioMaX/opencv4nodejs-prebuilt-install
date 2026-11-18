@@ -62,6 +62,20 @@ export default function (args: TestContext) {
     });
   });
 
+  describe('invert', () => {
+    it('returns the inverse without modifying the input', () => {
+      const input = new cv.Mat([[2, 0], [0, 4]], cv.CV_64F);
+      expect(cv.invert(input).getDataAsArray()).to.deep.equal([[0.5, 0], [0, 0.25]]);
+      expect(input.getDataAsArray()).to.deep.equal([[2, 0], [0, 4]]);
+    });
+
+    it('supports SVD pseudo-inverse for a non-square matrix', async () => {
+      const input = new cv.Mat([[2, 0], [0, 4], [0, 0]], cv.CV_64F);
+      const result = await cv.invertAsync(input, cv.DECOMP_SVD);
+      expect(result.getDataAsArray()).to.deep.equal([[0.5, 0, 0], [0, 0.25, 0]]);
+    });
+  });
+
   describe('partition', () => {
     // @ts-expect-error need args
     funcShouldRequireArgs(() => cv.partition());

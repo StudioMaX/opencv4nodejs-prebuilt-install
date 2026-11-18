@@ -189,6 +189,9 @@ export function findNonZeroAsync(src: Mat, idx?: Mat): Promise<Point2[]>;
 //  
 // double 	cv::invert (InputArray src, OutputArray dst, int flags=DECOMP_LU)
 //  	Finds the inverse or pseudo-inverse of a matrix. More...
+/** Returns the inverse or pseudo-inverse of src using the selected decomposition. */
+export function invert(src: Mat, flags?: number): Mat;
+export function invertAsync(src: Mat, flags?: number): Promise<Mat>;
 //  
 // void 	cv::log (InputArray src, OutputArray dst)
 //  	Calculates the natural logarithm of every array element. More...
