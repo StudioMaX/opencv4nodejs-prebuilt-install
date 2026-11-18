@@ -107,6 +107,16 @@ export default function (ctxt: TestContext) {
       expect(hog).to.have.property('signedGradient').to.be.true;
     });
 
+    if (ctxt.cvVersionGreaterEqual(4, 0, 0)) {
+      it('accepts both numeric and named histogram normalization', () => {
+        const numeric = new cv.HOGDescriptor({ histogramNormType: 0 });
+        const named = new cv.HOGDescriptor({ histogramNormType: cv.HOGHistogramNormType.L2Hys });
+        expect(numeric.histogramNormType).to.equal(cv.HOGHistogramNormType.L2Hys);
+        expect(named.histogramNormType).to.equal(cv.HOGHistogramNormType.L2Hys);
+        expect(() => new cv.HOGDescriptor({ histogramNormType: 1 })).to.throw();
+      });
+    }
+
     it('should implement compute', () => {
       const hog = new cv.HOGDescriptor();
       expect(hog).to.have.property('compute').to.be.a('function');
@@ -221,11 +231,9 @@ export default function (ctxt: TestContext) {
     };
 
     const otherAsyncCallbackedTests = () => {
-      it('should be callable with single channel img', async (done) => {
-        await hog.computeAsync(
-          getTestMatC1(),
-        );
-        expectOutputCallbacked(done);
+      it('should be callable with single channel img', (done) => {
+        // @ts-expect-error callback overload is not declared
+        hog.computeAsync(getTestMatC1(), expectOutputCallbacked(done));
       });
 
       it('should throw if locations invalid', async () => {

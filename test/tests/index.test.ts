@@ -40,7 +40,7 @@ describe('cv', () => {
     io: true,
     dnn: true,
     machinelearning: true,
-    objdetect: false, // to fix
+    objdetect: true,
     photo: true,
     video: true,
     face: true,

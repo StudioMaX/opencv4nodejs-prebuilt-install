@@ -163,7 +163,7 @@ jobs:
       - name: Test fresh addon
         working-directory: test
         env:
-          TEST_MODULE_LIST: core,highgui,calib3d,features2d,imgproc,io,xfeatures2d
+          TEST_MODULE_LIST: core,highgui,calib3d,features2d,imgproc,io,xfeatures2d,objdetect
           OPENCV4NODEJS_DISABLE_AUTOBUILD: 1
         run: npm test
       - name: Test external memory tracking

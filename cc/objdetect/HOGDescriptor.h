@@ -36,6 +36,24 @@ public:
 		static std::vector<const char*> getEnumMappings() {
 			return { "L2Hys" };
 		}
+
+		class ConverterImpl : public FF::UnwrapperBase<ConverterImpl, cv::HOGDescriptor::HistogramNormType> {
+		public:
+			typedef HistogramNormType::Type Type;
+
+			static std::string getTypeName() { return "L2Hys | 0"; }
+			static bool assertType(v8::Local<v8::Value> value) {
+				if (value->IsInt32()) return Nan::To<int32_t>(value).FromJust() == static_cast<int>(Type::L2Hys);
+				return value->IsString() && FF::EnumConverterImpl<HistogramNormType>::assertType(value);
+			}
+			static Type unwrapUnchecked(v8::Local<v8::Value> value) {
+				return value->IsInt32() ? Type::L2Hys : FF::EnumConverterImpl<HistogramNormType>::unwrapUnchecked(value);
+			}
+			static v8::Local<v8::Value> wrap(Type value) {
+				return FF::EnumConverterImpl<HistogramNormType>::wrap(value);
+			}
+		};
+		typedef FF::AbstractConverter<ConverterImpl> Converter;
 	};
 #endif
 

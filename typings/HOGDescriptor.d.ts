@@ -3,6 +3,9 @@ import { Size } from './Size.d';
 import { Rect } from './Rect.d';
 import { Point2 } from './Point2.d';
 
+export type HOGHistogramNorm = number | 'L2Hys';
+export const HOGHistogramNormType: { readonly L2Hys: 'L2Hys' };
+
 export interface HOGDescriptorArgs {
   winSize?: Size;
   blockSize?: Size;
@@ -11,7 +14,7 @@ export interface HOGDescriptorArgs {
   nbins?: number;
   derivAperture?: number;
   winSigma?: number;
-  histogramNormType?: number;
+  histogramNormType?: HOGHistogramNorm;
   L2HysThreshold?: number;
   gammaCorrection?: boolean;
   nlevels?: number;
@@ -45,13 +48,13 @@ export class HOGDescriptor {
   readonly cellSize: Size;
   readonly nbins: number;
   readonly derivAperture: number;
-  readonly histogramNormType: number;
+  readonly histogramNormType: HOGHistogramNorm;
   readonly nlevels: number;
   readonly winSigma: number;
   readonly L2HysThreshold: number;
   readonly gammaCorrection: boolean;
   readonly signedGradient: boolean;
-  constructor(winSize?: Size, blockSize?: Size, blockStride?: Size, cellSize?: Size, nbins?: number, derivAperture?: number, winSigma?: number, histogramNormType?: number, L2HysThreshold?: number, gammaCorrection?: boolean, nlevels?: number, signedGradient?: boolean);
+  constructor(winSize?: Size, blockSize?: Size, blockStride?: Size, cellSize?: Size, nbins?: number, derivAperture?: number, winSigma?: number, histogramNormType?: HOGHistogramNorm, L2HysThreshold?: number, gammaCorrection?: boolean, nlevels?: number, signedGradient?: boolean);
   constructor(params: HOGDescriptorArgs);
 
   checkDetectorSize(): boolean;
