@@ -43,8 +43,8 @@ function getStructureSimilarity(i1: Mat, i2: Mat): number {
     t1 = t1.hMul(t2);
 
     const ssim_map = t3.hDiv(t1);
-    const { y, x, w } = ssim_map.mean();
-    return [y, x, w].reduce((a, b) => a + b) / 3;
+    const { x, y, z } = ssim_map.mean();
+    return [x, y, z].reduce((a, b) => a + b) / 3;
 }
 
 const i1 = imread(getResourcePath('ssim-1.png'));
@@ -52,4 +52,4 @@ const i2 = imread(getResourcePath('ssim-2.png'));
 
 const structureSimilarity = getStructureSimilarity(i1, i2);
 
-console.log(`ssim-1.png & ssim-2.png SSIM: ${structureSimilarity}`); // Output: SSIM: 0.717
+console.log(`ssim-1.png & ssim-2.png SSIM: ${structureSimilarity}`);
