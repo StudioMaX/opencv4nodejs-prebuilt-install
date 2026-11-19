@@ -1,0 +1,40 @@
+name: macOS video diagnostic
+
+on:
+  push:
+    branches: ['4.6.0']
+    paths:
+      - '.github/workflows/macos-video-diagnostic.yaml'
+      - 'scripts/check-video-capture.cjs'
+  workflow_dispatch:
+    inputs:
+      node_version:
+        description: Node.js version
+        type: choice
+        options: ['18', '20', '22', '23', '24', '25', '26']
+        default: '23'
+      iterations:
+        description: Number of independent video captures
+        type: string
+        default: '20'
+
+permissions:
+  contents: read
+
+jobs:
+  video:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version || '23' }}
+          architecture: arm64
+      - name: Install runtime dependencies
+        run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+      - name: Download published prebuild
+        run: npx --no-install prebuild-install --verbose
+      - name: Diagnose video capture
+        env:
+          VIDEO_DIAGNOSTIC_ITERATIONS: ${{ inputs.iterations }}
+        run: node scripts/check-video-capture.cjs . "$VIDEO_DIAGNOSTIC_ITERATIONS"
